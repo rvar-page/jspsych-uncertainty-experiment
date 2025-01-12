@@ -462,6 +462,7 @@
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                 // html: '<p style="text-align: center; width: 400px"><b>Part 1: Short demo</b><br><br>Here you will see moving dots that depict two interacting people, and answer some questions.<br><br>Question 1 is to indicate whether the social interaction in each clip was upright or inverted (upside down), and Question 2 is to indicate how confident you feel about your response. </p>',
                 html: '<p style="text-align: center; width: 400px"><b>Part 1</b><br><br>Welcome to the study! This will be a simple demo consisting of moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must answer two questions.<br>(1) Indicate whether the social interaction in the clip was presented upright or inverted (upside down);<br>(2) Indicate how confident you feel about this response. </p>',
+                
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -964,7 +965,7 @@
             };
             timeline.push(confPage)
             
-            break; // for debugging!!
+            // break; // for debugging!!
         } 
 
         endPage = {
@@ -972,26 +973,15 @@
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                 html: '<p style="text-align: left;">Great job!<br> When you are ready, press continue to go to the next page for Part II.</p>',
-                //         html: `
-                // <div style="text-align: center;">
-                //     <p>Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>
-                //     <button type="submit" style="display: inline-block; margin: 20px auto; padding: 10px 20px; font-size: 16px;">Continue</button>
-                // </div>
-                // `
+                
                 on_load: function() {
-                    // Wait for the button to exist
-                    setTimeout(() => {
-                        const button = document.querySelector(".jspsych-survey-html-form-next");
-                        if (button) {
-                            button.style.cssText = `
-                                display: block;
-                                margin: 20px auto;
-                                text-align: center;
-                            `;
-                        }
-                    }, 100); // Small delay to ensure element is rendered
-                }
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
             };
+        }
         timeline.push(endPage)
     jsPsych.run(timeline);
 

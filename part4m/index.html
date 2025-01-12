@@ -409,25 +409,13 @@
                     // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                     // html: '<p style="text-align: left;">Part 2: Threshold estimation (remove from subs)<br><br>Here you will watch short animation clips and<br>answer questions about<br>(1) whether the social interaction in each clip was<br>upright or inverted, <br>(2) how confident you feel about your response.</p>',
                     html: '<p style="text-align: left;">Short break.<br><br>Continue when you are ready.</p>',
-                    //         html: `
-                    // <div style="text-align: center;">
-                    //     <p>Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>
-                    //     <button type="submit" style="display: inline-block; margin: 20px auto; padding: 10px 20px; font-size: 16px;">Continue</button>
-                    // </div>
-                    // `
                     on_load: function() {
-                        // Wait for the button to exist
-                        setTimeout(() => {
-                            const button = document.querySelector(".jspsych-survey-html-form-next");
-                            if (button) {
-                                button.style.cssText = `
-                                    display: block;
-                                    margin: 20px auto;
-                                    text-align: center;
-                                `;
-                            }
-                        }, 100); // Small delay to ensure element is rendered
-                    }
+                    const buttons = document.querySelectorAll('.jspsych-btn');
+                    buttons.forEach(button => {
+                        button.style.display = 'block';
+                        button.style.margin = '0 auto';
+                    });
+                }
         };
 
         let timeline = [];
@@ -1106,24 +1094,12 @@
             // stimulus:'<div class="center-stimulus"> Welcome!</div>',
             // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
             html: '<p style="text-align: left;">Great job!<br> When you are ready, press continue to go to the next page for Part 5.</p>',
-            //         html: `
-            // <div style="text-align: center;">
-            //     <p>Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>
-            //     <button type="submit" style="display: inline-block; margin: 20px auto; padding: 10px 20px; font-size: 16px;">Continue</button>
-            // </div>
-            // `
             on_load: function() {
-                // Wait for the button to exist
-                setTimeout(() => {
-                    const button = document.querySelector(".jspsych-survey-html-form-next");
-                    if (button) {
-                        button.style.cssText = `
-                            display: block;
-                            margin: 20px auto;
-                            text-align: center;
-                        `;
-                    }
-                }, 100); // Small delay to ensure element is rendered
+            const buttons = document.querySelectorAll('.jspsych-btn');
+            buttons.forEach(button => {
+                button.style.display = 'block';
+                button.style.margin = '0 auto';
+            });
             }
         };
     timeline.push(endPage)
