@@ -132,7 +132,7 @@
         var Ntrials = 64;
 
         const thresh = 40;
-        const diff = 15;
+        const diff = 8; // yet to fix - nonmultiples of 4 don't work!!
         const NoiseLevels = [thresh-2*diff, thresh-diff, thresh+diff, thresh+2*diff]; // loaded from NoiseLevels.mat
        
         // const NoiseLevels = [16, 48, 80, 112]; // loaded from NoiseLevels.mat
@@ -894,7 +894,7 @@
 
                     const container = document.getElementById("dot-container");
                     if (container) {
-                        start_time = performance.now(); // Record start time
+                        // start_time = performance.now(); // Record start time
                         container.replaceWith(createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, Nframes, NstimDots));
                     } else {
                         console.error("Dot container not found!");
@@ -903,14 +903,14 @@
                 // on_start: function (trial) {
                 //     dotTrial.start_time = performance.now(); // Record start time
                 // },
-                on_finish: function(data){
-                    //    data.page_duration = duration; // Save to trial data
-                    const end_time = performance.now(); // Record end time
-                    const duration = Math.round(end_time - start_time); // Calculate duration
-                    data.page_duration = duration; // Save to trial data
-                    data.stimName = stimAll[jj]; 
-                    data.numNoiseDots = NnoiseDotsAll[jj];
-                },
+                // on_finish: function(data){
+                //     //    data.page_duration = duration; // Save to trial data
+                //     const end_time = performance.now(); // Record end time
+                //     const duration = Math.round(end_time - start_time); // Calculate duration
+                //     data.page_duration = duration; // Save to trial data
+                //     data.stimName = stimAll[jj]; 
+                //     data.numNoiseDots = NnoiseDotsAll[jj];
+                // },
                 trial_duration: 3200 // End trial after 1 second (10 sets * .1 seconds)
             };
             timeline.push(dotTrial);
