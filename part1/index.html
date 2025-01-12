@@ -973,17 +973,18 @@
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                 html: '<p style="text-align: left;">Great job!<br> When you are ready, press continue to go to the next page for Part II.</p>',
-                
+
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
                     button.style.display = 'block';
                     button.style.margin = '0 auto';
                 });
-            };
+            }
         }
         timeline.push(endPage)
-    jsPsych.run(timeline);
+    
+        jsPsych.run(timeline);
 
     </script>
 
