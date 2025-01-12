@@ -401,7 +401,7 @@
 
         let test1 = 0;
 
-        let dotTrial,respPage;
+        let dotTrial,respPage,introPage,breakPage,endPage;
 
         let timeline = [];
 
@@ -409,7 +409,7 @@
                 type: jsPsychSurveyHtmlForm,
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-                html: '<p style="text-align: center; width: 400px"><b>Part 4</b><br><br>Here again, you will watch animations embedded in noise and the question is similar to two rounds back:<br> Was the social interaction in each clip presented upright or in an inverted (upside down) manner?<br>Additionally, in this part, you will get feedback on some clips.',
+                html: '<p style="text-align: center; width: 400px"><b>Part 4</b><br><br>Here again, you will watch animations embedded in noise and the question is similar to two rounds back:<br> Was the social interaction in each clip presented upright or in an inverted (upside down) manner?<br><br>Additionally, in this part, you will get feedback on some clips.<br>',
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
