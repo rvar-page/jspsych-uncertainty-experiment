@@ -132,7 +132,7 @@
         var Ntrials = 64;
 
         const thresh = 40; 
-        const diff = 8;
+        const diff = 15;
         const NoiseLevels = [thresh-2*diff, thresh-diff, thresh+diff, thresh+2*diff]; // loaded from NoiseLevels.mat
         // to debug!!! - only multiples of 4 or 8 seem to work!!
         // const NoiseLevels = [16, 48, 80, 112]; // loaded from NoiseLevels.mat
@@ -626,6 +626,7 @@
                     NdotsToShowNoise = NnoiseDots; 
                     setSizeNoise = NdotsToShowNoise/dotDur // as framerate is 30Hz, I will change a dot every 4 frames, so to make the changes as asynchroneous as possible, I change as few dots as possible - that's 3 per frame
                     setBoundsNoise = linspace(0,NdotsToShowNoise,dotDur+1) // start and stop of each quarter.
+                    setBoundsNoise = setBoundsNoise.map(num => Math.ceil(num));
                     console.log('setBoundsNoise',setBoundsNoise)
 
                     const possCoordsNoisex = transpose(ax_bx);
