@@ -265,7 +265,7 @@
             function getPercentile(sortedArray, percentile) {
                 const index = (percentile / 100) * (sortedArray.length - 1);
                 const lower = Math.floor(index);
-                const upper = Math.ceil(index);
+                const upper = Math.ceil(index); 
                 const weight = index - lower;
                 return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
             }
