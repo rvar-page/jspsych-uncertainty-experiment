@@ -88,10 +88,10 @@
         const jsPsych = initJsPsych({
             on_finish: function() 
             {
-            const data = jsPsych.data.get().csv();
-            // Save the data as a CSV file
-            saveData("experiment_data_part2.csv", data);
-            // jsPsych.data.displayData('csv');
+            // const data = jsPsych.data.get().csv();
+            // // Save the data as a CSV file
+            // saveData("experiment_data_part2.csv", data);
+            // // jsPsych.data.displayData('csv');
             }
         });
 
@@ -1251,6 +1251,11 @@
                     button.style.display = 'block';
                     button.style.margin = '0 auto';
                 });
+
+                const data = jsPsych.data.get().csv();
+                // Save the data as a CSV file
+                saveData("experiment_data_part2.csv", data);
+                // jsPsych.data.displayData('csv');
             }
         };
     timeline.push(endPage)
