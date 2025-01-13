@@ -125,15 +125,15 @@
         const jsPsych = initJsPsych({
             on_finish: function() 
             {
-            // const data = jsPsych.data.get().csv();
+            const data = jsPsych.data.get().csv();
             // // Save the data as a CSV file
-            // saveData("experiment_data.csv", data);
+            saveData("experiment_data_part1.csv", data);
             // jsPsych.data.displayData('csv');
 
-            const experimentData = jsPsych.data.get().values();
+            // const experimentData = jsPsych.data.get().values();
 
             // Upload the data to Sciebo
-            uploadToSciebo(experimentData);
+            // uploadToSciebo(experimentData);
 
             }
         });
@@ -983,6 +983,16 @@
             }
         }
         timeline.push(endPage)
+
+        var goodbye = { // future studies - move window.location to on_finish (this still doesn't explain why data doesn't save though - because it did for some peopel
+            type: htmlKeyboardResponse,
+            stimulus: 'Going back to Prolific....',
+            on_load: function() {
+                window.location = 'https://rvar-page.github.io/jspsych-uncertainty-experiment/part2';
+                //CHANGE THIS FOR NEW STUDIES!!!!
+            }
+        };
+timeline.push(goodbye);
     
         jsPsych.run(timeline);
 
