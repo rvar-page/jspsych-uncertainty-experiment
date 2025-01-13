@@ -79,7 +79,7 @@
         </style>
         `;
         // Add the CSS to the document head and run the trial
-        // document.head.insertAdjacentHTML("beforeend", centerStyle);
+        document.head.insertAdjacentHTML("beforeend", centerStyle);
         
         // const scieboUploadLink = 'https://uni-bonn.sciebo.de/s/I20gjbp8BNmkjVO';
 
@@ -972,7 +972,7 @@
                 type: jsPsychSurveyHtmlForm,
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-                html: '<p style="text-align: left;">Great job!<br> When you are ready, press continue to go to the next page for Part II.</p>',
+                html: '<p style="text-align: left;">Great job!<br> When you are ready, press continue to go to the next page for Part 2.</p>',
 
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
@@ -986,13 +986,13 @@
 
         var goodbye = { // future studies - move window.location to on_finish (this still doesn't explain why data doesn't save though - because it did for some peopel
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: 'Going back to Prolific....',
+            stimulus: 'Going to part 2..',
             on_load: function() {
                 window.location = 'https://rvar-page.github.io/jspsych-uncertainty-experiment/part2';
                 //CHANGE THIS FOR NEW STUDIES!!!!
             }
         };
-timeline.push(goodbye);
+        timeline.push(goodbye);
     
         jsPsych.run(timeline);
 

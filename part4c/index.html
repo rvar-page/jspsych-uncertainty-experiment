@@ -87,7 +87,7 @@
             {
             const data = jsPsych.data.get().csv();
             // Save the data as a CSV file
-            saveData("experiment_data.csv", data);
+            saveData("experiment_data_part4c.csv", data);
             // jsPsych.data.displayData('csv');
             }
         });
@@ -1120,7 +1120,18 @@
             });
         }
     };
-    timeline.push(endPage)
+    timeline.push(endPage);
+
+    var goodbye = { // future studies - move window.location to on_finish (this still doesn't explain why data doesn't save though - because it did for some peopel
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: 'Going to part 5..',
+            on_load: function() {
+                window.location = 'https://rvar-page.github.io/jspsych-uncertainty-experiment/part5';
+                //CHANGE THIS FOR NEW STUDIES!!!!
+            }
+        };
+    timeline.push(goodbye);
+
     jsPsych.run(timeline);
 
     </script>
