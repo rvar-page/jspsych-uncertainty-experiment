@@ -121,6 +121,33 @@
         //     .catch(error => console.error('Error uploading data:', error));
         // }
 
+        // Add a save data function
+        function uploadDataToSciebo(data) {
+        // Your Sciebo upload link
+        // const uploadLink = "https://uni-bonn.sciebo.de/s/YOUR_UPLOAD_ID";
+        const uploadLink = 'https://uni-bonn.sciebo.de/s/I20gjbp8BNmkjVO';
+        const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+
+
+        // Use the Fetch API to send data
+        fetch(proxyUrl + uploadLink, {
+            method: "POST",
+            body: new Blob([data], { type: "application/json" }), // Send as JSON file
+            headers: {
+            "Content-Type": "application/json", // Specify JSON content
+            },
+        })
+            .then((response) => {
+            if (response.ok) {
+                console.log("Data uploaded successfully!");
+            } else {
+                console.error("Upload failed:", response.statusText);
+            }
+            })
+            .catch((error) => {
+            console.error("Error uploading data:", error);
+            });
+        }
 
         // BUG: FIRST DOT AT THE TOP LEFT!!
         const jsPsych = initJsPsych({
@@ -965,6 +992,10 @@
                 const data = jsPsych.data.get().csv();
                 // Save the data as a CSV file
                 saveData("experiment_data_part1.csv", data);
+
+                // Send data to the upload link
+                // const experimentData = jsPsych.data.get().json();
+                // uploadDataToSciebo(experimentData);
             }
         }
         timeline.push(endPage)
