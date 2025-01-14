@@ -36,7 +36,8 @@
             /* 50vw Covers 50% of the viewport width */
             height: 70vh;
             /* 50vh Covers 50% of the viewport height */
-            transform: translate(-50%, 30%); 
+            /* transform: translate(-50%, 30%);  */
+            transform: translate(-50%, 0%); 
             /* Perfectly centers the container */
             overflow: visible; 
             background-color: lightgray; /* Optional: Adds background for visibility */
@@ -105,12 +106,12 @@
         
         const noiseSpread = 200; // spread of noise from center
 
-        const suff = '_LRflipped'
+        const suff = '_LRswapped'
         const stimList = [
-            // ["I_am_happy_M_A.txt", "I_am_happy_M_B.txt"],
-            // ["I_am_happy_F_A.txt", "I_am_happy_F_B.txt"],
-            // ["I_am_angry_M_A.txt", "I_am_angry_M_B.txt"],
-            // ["I_am_angry_F_A.txt", "I_am_angry_F_B.txt"],
+            ["I_am_happy_M_A.txt", "I_am_happy_M_B.txt"],
+            ["I_am_happy_F_A.txt", "I_am_happy_F_B.txt"],
+            ["I_am_angry_M_A.txt", "I_am_angry_M_B.txt"],
+            ["I_am_angry_F_A.txt", "I_am_angry_F_B.txt"],
             // ["I_am_happy_M_A.txt", "I_am_happy_F_B.txt"],
             // ["I_am_happy_F_A.txt", "I_am_happy_M_B.txt"],
             // ["I_am_angry_M_A.txt", "I_am_angry_F_B.txt"],
@@ -119,10 +120,10 @@
             [`I_am_happy_F_B${suff}.txt`, `I_am_happy_F_A${suff}.txt`],
             [`I_am_angry_M_B${suff}.txt`, `I_am_angry_M_A${suff}.txt`],
             [`I_am_angry_F_B${suff}.txt`, `I_am_angry_F_A${suff}.txt`],
-            [`I_am_happy_M_B${suff}.txt`, `I_am_happy_F_A${suff}.txt`],
-            [`I_am_happy_F_B${suff}.txt`, `I_am_happy_M_A${suff}.txt`],
-            [`I_am_angry_M_B${suff}.txt`, `I_am_angry_F_A${suff}.txt`],
-            [`I_am_angry_F_B${suff}.txt`, `I_am_angry_M_A${suff}.txt`],
+            // [`I_am_happy_M_B${suff}.txt`, `I_am_happy_F_A${suff}.txt`],
+            // [`I_am_happy_F_B${suff}.txt`, `I_am_happy_M_A${suff}.txt`],
+            // [`I_am_angry_M_B${suff}.txt`, `I_am_angry_F_A${suff}.txt`],
+            // [`I_am_angry_F_B${suff}.txt`, `I_am_angry_M_A${suff}.txt`],
         ];
 
         const Nstims = stimList.length;
@@ -419,7 +420,7 @@
                 type: jsPsychSurveyHtmlForm,
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-                html: '<p style="text-align: center; width: 400px"><b>Part 3</b><br><br>Here too, you will watch interactions embedded in noise, but the first question after each interaction clip is different:<br>(1) Was the social interaction in each clip <br>positive or negative?<br>(2) How confident do you feel about your response?</p>',
+                html: '<p style="text-align: center; width: 400px"><b>Part 3</b><br><br>Watch the interactions embedded in noise, and indicate:<br>(1) which description is closest to the interaction you just saw, and <br>(2) how confident you feel about your response?</p>',
                 //         html: `
                 // <div style="text-align: center;">
                 //     <p>Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>
@@ -913,7 +914,7 @@
                 type: jsPsychHtmlButtonResponse,
                 // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
                 stimulus: '<p style="text-align: center;">Press a button!</p>',
-                choices: ['Positive', 'Negative'],
+                choices: ['I am happy', 'I am angry'],
                 prompt: " ",
                 on_load: function(){
                     jsPsych.data.get().addToLast({ stim: stimAll[jj], noiseDots: NnoiseDotsAll[jj] });

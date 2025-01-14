@@ -35,7 +35,8 @@
             /* 50vw Covers 50% of the viewport width */
             height: 70vh;
             /* 50vh Covers 50% of the viewport height */
-            transform: translate(-50%, 30%); 
+            /* transform: translate(-50%, 30%);  */
+            transform: translate(-50%, 0%); 
             /* Perfectly centers the container */
             overflow: visible; 
             background-color: lightgray; /* Optional: Adds background for visibility */
@@ -111,17 +112,21 @@
 
         const priorLims = [4,200];
         // Stimulus list
-        const control_ = "inverted"; // Options: 'inverted', 'LRflipped', 'scr'
+        const control_ = "LRswapped"; // Options: 'inverted', 'LRflipped', 'scr'
 
         const stimList = [
             ["help_yourself_M_A.txt", "help_yourself_M_B.txt"],
             ["help_yourself_F_A.txt", "help_yourself_F_B.txt"],
             ["this_tall_M_A.txt", "this_tall_M_B.txt"],
             ["this_tall_F_A.txt", "this_tall_F_B.txt"],
-            [`help_yourself_M_A_${control_}.txt`, `help_yourself_M_B_${control_}.txt`],
-            [`help_yourself_F_A_${control_}.txt`, `help_yourself_F_B_${control_}.txt`],
-            [`this_tall_M_A_${control_}.txt`, `this_tall_M_B_${control_}.txt`],
-            [`this_tall_F_A_${control_}.txt`, `this_tall_F_B_${control_}.txt`]
+            // [`help_yourself_M_A_${control_}.txt`, `help_yourself_M_B_${control_}.txt`],
+            // [`help_yourself_F_A_${control_}.txt`, `help_yourself_F_B_${control_}.txt`],
+            // [`this_tall_M_A_${control_}.txt`, `this_tall_M_B_${control_}.txt`],
+            // [`this_tall_F_A_${control_}.txt`, `this_tall_F_B_${control_}.txt`]
+            [`help_yourself_M_B_${control_}.txt`, `help_yourself_M_A_${control_}.txt`],
+            [`help_yourself_F_B_${control_}.txt`, `help_yourself_F_A_${control_}.txt`],
+            [`this_tall_M_B_${control_}.txt`, `this_tall_M_A_${control_}.txt`],
+            [`this_tall_F_B_${control_}.txt`, `this_tall_F_A_${control_}.txt`]
         ];
 
         // function normalizeVals(x) {
@@ -484,7 +489,6 @@
                     type: jsPsychSurveyHtmlForm,
                     // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                     // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-                    // html: '<p style="text-align: left;">Part 2: Threshold estimation (remove from subs)<br><br>Here you will watch short animation clips and<br>answer questions about<br>(1) whether the social interaction in each clip was<br>upright or inverted, <br>(2) how confident you feel about your response.</p>',
                     html: '<p style="text-align: center; width: 400px">Short break.<br><br>Continue when you are ready.</p>',
                     //         html: `
                     // <div style="text-align: center;">
@@ -514,7 +518,7 @@
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>', 
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                 // html: '<p style="text-align: left;">Part 2: Threshold estimation (remove from subs)<br><br>Here you will watch short animation clips and<br>answer questions about<br>(1) whether the social interaction in each clip was<br>upright or inverted, <br>(2) how confident you feel about your response.</p>',
-                html: '<p style="text-align: center; width: 400px"><b>Part 2</b><br><br>In this part too, you will see moving dots that depict interacting people, but the interactions will be embedded in noise.<br>After each clip, you must respond whether the interaction in each clip<br>was presented upright or in an inverted (upside down) manner.</p>',
+                html: '<p style="text-align: center; width: 400px"><b>Part 2</b><br><br>In this part, you will see moving dots that depict interacting people, but the interactions will be embedded in noise.<br>After each clip, you must indicate which of the two interactions was presented.</p>',
                 // on_load: function() {
                 //     // Wait for the button to exist
                 //     setTimeout(() => {
@@ -1193,7 +1197,7 @@
                 type: jsPsychHtmlButtonResponse,
                 // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
                 stimulus: '<p style="text-align: center;">Press a button!</p>',
-                choices: ['Upright', 'Inverted'],
+                choices: ['Help yourself', 'This tall'],
                 prompt: " ",
                 on_start: function(){
                     start_time_resp = performance.now(); // Record start time
@@ -1201,8 +1205,10 @@
                 on_finish: function(data){
                     // Score the keyboard response as correct or incorrect.
                     // Check if 'inverted' is in stimFileA
-                    data.response = ['Upright', 'Inverted'][data.response]
-                    const true_label = stimAll[jj][0].includes("inverted") ? "Inverted" : "Upright"; // '.includes("inverted") ' --> has to be lowercase!
+                    // data.response = ['Upright', 'Inverted'][data.response]
+                    data.response = ['Help yourself', 'This tall'][data.response]
+                    // const true_label = stimAll[jj][0].includes("inverted") ? "Inverted" : "Upright"; // '.includes("inverted") ' --> has to be lowercase!
+                    const true_label = stimAll[jj][0].includes("help") ? "Help yourself" : "This tall"; // '.includes("inverted") ' --> has to be lowercase!
                     data.true_label = true_label;
                     try {
                         if(jsPsych.pluginAPI.compareKeys(data.response, true_label)){

@@ -35,7 +35,8 @@
             /* 50vw Covers 50% of the viewport width */
             height: 70vh;
             /* 50vh Covers 50% of the viewport height */
-            transform: translate(-50%, 30%); 
+            /* transform: translate(-50%, 30%);  */
+            transform: translate(-50%, 0%); 
             /* Perfectly centers the container */
             overflow: visible; 
             background-color: lightgray; /* Optional: Adds background for visibility */
@@ -105,27 +106,21 @@
         const noiseSpread = 200; // spread of noise from center
 
         // Stimulus list
-        const control_ = "inverted"; // Options: 'inverted', 'LRflipped', 'scr'
-        // const stimList = [
-        //     ["help_yourself_M_A.txt", "help_yourself_M_B.txt"],
-        //     ["help_yourself_F_A.txt", "help_yourself_F_B.txt"],
-        //     ["this_tall_M_A.txt", "this_tall_M_B.txt"],
-        //     ["this_tall_F_A.txt", "this_tall_F_B.txt"],
-        //     [`help_yourself_M_A_${control_}.txt`, `help_yourself_M_B_${control_}.txt`],
-        //     [`help_yourself_F_A_${control_}.txt`, `help_yourself_F_B_${control_}.txt`],
-        //     [`this_tall_M_A_${control_}.txt`, `this_tall_M_B_${control_}.txt`],
-        //     [`this_tall_F_A_${control_}.txt`, `this_tall_F_B_${control_}.txt`]
-        // ];
-
+        // const control_ = "inverted"; // Options: 'inverted', 'LRflipped', 'scr'
+        const control_ = "LRswapped"; // Options: 'inverted', 'LRflipped', 'scr'
         const stimList = [
             ["help_yourself_M_A.txt", "help_yourself_M_B.txt"],
             ["help_yourself_F_A.txt", "help_yourself_F_B.txt"],
             ["this_tall_M_A.txt", "this_tall_M_B.txt"],
             ["this_tall_F_A.txt", "this_tall_F_B.txt"],
-            [`help_yourself_M_A_${control_}.txt`, `help_yourself_M_B_${control_}.txt`],
-            [`help_yourself_F_A_${control_}.txt`, `help_yourself_F_B_${control_}.txt`],
-            [`this_tall_M_A_${control_}.txt`, `this_tall_M_B_${control_}.txt`],
-            [`this_tall_F_A_${control_}.txt`, `this_tall_F_B_${control_}.txt`]
+            // [`help_yourself_M_A_${control_}.txt`, `help_yourself_M_B_${control_}.txt`],
+            // [`help_yourself_F_A_${control_}.txt`, `help_yourself_F_B_${control_}.txt`],
+            // [`this_tall_M_A_${control_}.txt`, `this_tall_M_B_${control_}.txt`],
+            // [`this_tall_F_A_${control_}.txt`, `this_tall_F_B_${control_}.txt`]
+            [`help_yourself_M_B_${control_}.txt`, `help_yourself_M_A_${control_}.txt`],
+            [`help_yourself_F_B_${control_}.txt`, `help_yourself_F_A_${control_}.txt`],
+            [`this_tall_M_B_${control_}.txt`, `this_tall_M_A_${control_}.txt`],
+            [`this_tall_F_B_${control_}.txt`, `this_tall_F_A_${control_}.txt`]
         ];
 
         const Nstims = stimList.length;
@@ -424,7 +419,7 @@
                 type: jsPsychSurveyHtmlForm,
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-                html: '<p style="text-align: center; width: 400px"><b>Part 4</b><br><br>Here again, you will watch animations embedded in noise and the question is similar to two rounds back:<br> Was the social interaction in each clip presented upright or in an inverted (upside down) manner?<br><br>Additionally, in this part, you will get feedback on some clips.<br><br>',
+                html: '<p style="text-align: center; width: 400px"><b>Part 4</b><br><br>Watch the interactions embedded in noise, and indicate which description is closest to the interaction you just saw.<br><br>Additionally, in this part, you will get feedback on some clips.<br><br>',
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -921,7 +916,8 @@
                 type: jsPsychHtmlButtonResponse,
                 // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
                 stimulus: '<p style="text-align: center;">Press a button!</p>',
-                choices: ['Upright', 'Inverted'],
+                // choices: ['Upright', 'Inverted'],
+                choices: ['Help yourself', 'This tall'],
                 prompt: " ",
                 on_start: function(){
                     start_time_resp = performance.now(); // Record start time
@@ -929,8 +925,10 @@
                 on_finish: function(data){
                     // Score the keyboard response as correct or incorrect.
                     // Check if 'inverted' is in stimFileA
-                    data.response = ['Upright', 'Inverted'][data.response]
-                    const true_label = stimAll[jj][0].includes("inverted") ? "Inverted" : "Upright"; // filename has 'inverted' in lowercase. 
+                    // data.response = ['Upright', 'Inverted'][data.response]
+                    // const true_label = stimAll[jj][0].includes("inverted") ? "Inverted" : "Upright"; // filename has 'inverted' in lowercase. 
+                    data.response = ['Help yourself', 'This tall'][data.response]
+                    const true_label = stimAll[jj][0].includes("help") ? "Help yourself" : "This tall"; // '.includes("inverted") ' --> has to be lowercase! 
                     // This part should have uppercase in the first letter: '? "Inverted" : "Upright" ' because it has to match the displayed button choices
                     data.true_label = true_label;
                     if(jsPsych.pluginAPI.compareKeys(data.response, true_label)){

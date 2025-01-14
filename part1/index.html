@@ -35,7 +35,8 @@
             /* 50vw Covers 50% of the viewport width */
             height: 70vh;
             /* 50vh Covers 50% of the viewport height */
-            transform: translate(-50%, 30%); 
+            /* transform: translate(-50%, 30%);  */
+            transform: translate(-50%, 0%); 
             /* Perfectly centers the container */
             overflow: visible; 
             background-color: lightgray; /* Optional: Adds background for visibility */
@@ -150,38 +151,20 @@
         
         const noiseSpread = 200; // spread of noise from center
 
-        // const stimList = [
-        //     ["I_am_happy_M_A.txt", "I_am_happy_M_B.txt"],
-        //     ["I_am_happy_F_A.txt", "I_am_happy_F_B.txt"],
-        //     ["I_am_angry_M_A.txt", "I_am_angry_M_B.txt"],
-        //     ["I_am_angry_F_A.txt", "I_am_angry_F_B.txt"],
-        //     ["I_am_happy_M_A.txt", "I_am_happy_F_B.txt"],
-        //     ["I_am_happy_F_A.txt", "I_am_happy_M_B.txt"],
-        //     ["I_am_angry_M_A.txt", "I_am_angry_F_B.txt"],
-        //     ["I_am_angry_F_A.txt", "I_am_angry_M_B.txt"],
-        // ];
-
-        // const stimList = [
-        //     ["help_yourself_M_A.txt", "help_yourself_M_B.txt"],
-        //     ["help_yourself_F_A.txt", "help_yourself_F_B.txt"],
-        //     ["this_tall_M_A.txt", "this_tall_M_B.txt"],
-        //     ["this_tall_F_A.txt", "this_tall_F_B.txt"],
-        //     [`help_yourself_M_A_${control_}.txt`, `help_yourself_M_B_${control_}.txt`],
-        //     [`help_yourself_F_A_${control_}.txt`, `help_yourself_F_B_${control_}.txt`],
-        //     [`this_tall_M_A_${control_}.txt`, `this_tall_M_B_${control_}.txt`],
-        //     [`this_tall_F_A_${control_}.txt`, `this_tall_F_B_${control_}.txt`]
-        // ];
-
-        const control_ = "inverted"; // Options: 'inverted', 'LRflipped', 'scr'
+        const control_ = "LRswapped"; // Options: 'inverted', 'LRflipped' (agents look away), 'scr', 'LRswapped' (agent positions swapped, still social)
         const stimList = [
             ["look_ceiling_M_A.txt", "look_ceiling_M_B.txt"],
             ["look_ceiling_F_A.txt", "look_ceiling_F_B.txt"],
             ["look_floor_M_A.txt", "look_floor_M_B.txt"],
             ["look_floor_F_A.txt", "look_floor_F_B.txt"],
-            [`look_ceiling_M_A_${control_}.txt`, `look_ceiling_M_B_${control_}.txt`],
-            [`look_ceiling_F_A_${control_}.txt`, `look_ceiling_F_B_${control_}.txt`],
-            [`look_floor_M_A_${control_}.txt`, `look_floor_M_B_${control_}.txt`],
-            [`look_floor_F_A_${control_}.txt`, `look_floor_F_B_${control_}.txt`],
+            // [`look_ceiling_M_A_${control_}.txt`, `look_ceiling_M_B_${control_}.txt`],
+            // [`look_ceiling_F_A_${control_}.txt`, `look_ceiling_F_B_${control_}.txt`],
+            // [`look_floor_M_A_${control_}.txt`, `look_floor_M_B_${control_}.txt`],
+            // [`look_floor_F_A_${control_}.txt`, `look_floor_F_B_${control_}.txt`],
+            [`look_ceiling_M_B_${control_}.txt`, `look_ceiling_M_A_${control_}.txt`],
+            [`look_ceiling_F_B_${control_}.txt`, `look_ceiling_F_A_${control_}.txt`],
+            [`look_floor_M_B_${control_}.txt`, `look_floor_M_A_${control_}.txt`],
+            [`look_floor_F_B_${control_}.txt`, `look_floor_F_A_${control_}.txt`],
         ];
 
         const Nstims = stimList.length;
@@ -460,8 +443,7 @@
                 type: jsPsychSurveyHtmlForm,
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-                // html: '<p style="text-align: center; width: 400px"><b>Part 1: Short demo</b><br><br>Here you will see moving dots that depict two interacting people, and answer some questions.<br><br>Question 1 is to indicate whether the social interaction in each clip was upright or inverted (upside down), and Question 2 is to indicate how confident you feel about your response. </p>',
-                html: '<p style="text-align: center; width: 400px"><b>Part 1</b><br><br>Welcome to the study! This will be a simple demo consisting of moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must answer two questions.<br>(1) Indicate whether the social interaction in the clip was presented upright or inverted (upside down);<br>(2) Indicate how confident you feel about this response. </p>',
+                html: '<p style="text-align: center; width: 400px"><b>Part 1</b><br><br>This will be a simple demo consisting of moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must answer two questions.<br>(1) Indicate which of two interactions was presented;<br>(2) Indicate how confident you feel about this response.',
                 
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
@@ -936,7 +918,7 @@
                 type: jsPsychHtmlButtonResponse,
                 // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
                 stimulus: '<p style="text-align: center;">Press a button!</p>',
-                choices: ['Upright', 'Inverted'],
+                choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
                 prompt: " ",
                 on_load: function(){
                     jsPsych.data.get().addToLast({ stim: stimAll[jj], noiseDots: NnoiseDotsAll[jj] });
@@ -965,7 +947,7 @@
             };
             timeline.push(confPage)
             
-            break; // for debugging!!
+            // break; // for debugging!!
         } 
 
         endPage = {
