@@ -497,17 +497,11 @@
                     // </div>
                     // `
                     on_load: function() {
-                        // Wait for the button to exist
-                        setTimeout(() => {
-                            const button = document.querySelector(".jspsych-survey-html-form-next");
-                            if (button) {
-                                button.style.cssText = `
-                                    display: block;
-                                    margin: 20px auto;
-                                    text-align: center;
-                                `;
-                            }
-                        }, 100); // Small delay to ensure element is rendered
+                        const buttons = document.querySelectorAll('.jspsych-btn');
+                        buttons.forEach(button => {
+                            button.style.display = 'block';
+                            button.style.margin = '0 auto';
+                        });
                     }
         };
 
