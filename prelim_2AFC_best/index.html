@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Dots Experiment</title>
+
+    <!-- Include jsPsych CDN -->
+    <script src="https://unpkg.com/jspsych@8.0.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/jspsych@7.2.1/jspsych.js"></script> -->
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.0.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@jspsych/css@8.0.0">
+    
+
+    <!-- Styling for the dots -->
+    <style>
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            will-change: transform; /* Hint to the browser for GPU acceleration */
+        }
+
+        /* Center the dot container with adjustments */
+        #dot-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40vw;
+            /* 50vw Covers 50% of the viewport width */
+            height: 70vh;
+            /* 50vh Covers 50% of the viewport height */
+            transform: translate(-50%, 0%); 
+            /* transform: translate(-50%, 0%);  */
+            /* Perfectly centers the container */
+            overflow: visible; 
+            background-color: lightgray; /* Optional: Adds background for visibility */
+            border: 1px solid black; /* Optional: Adds a border for visibility */
+        } /* (-50%, 50%); (-25%, 25%);  */
+        /* A: (0%, -50%)*/
+
+        .center-stimulus {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+       
+    </style>
+</head>
+
+<body>
+
+    <script>
+        // yet to fix - the first frame is blank possibly because of some async issues
+
+        const centerStyle = `
+        <style>
+            html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            }
+            .jspsych-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            }
+        </style>
+        `;
+        // Add the CSS to the document head and run the trial
+        document.head.insertAdjacentHTML("beforeend", centerStyle);
+
+        // Add a save data function
+        function uploadDataToSciebo(data) {
+        // Your Sciebo upload link
+        // const uploadLink = "https://uni-bonn.sciebo.de/s/YOUR_UPLOAD_ID";
+        const uploadLink = 'https://uni-bonn.sciebo.de/s/I20gjbp8BNmkjVO';
+        const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+
+
+        // Use the Fetch API to send data
+        fetch(proxyUrl + uploadLink, {
+            method: "POST",
+            body: new Blob([data], { type: "application/json" }), // Send as JSON file
+            headers: {
+            "Content-Type": "application/json", // Specify JSON content
+            },
+        })
+            .then((response) => {
+            if (response.ok) {
+                console.log("Data uploaded successfully!");
+            } else {
+                console.error("Upload failed:", response.statusText);
+            }
+            })
+            .catch((error) => {
+            console.error("Error uploading data:", error);
+            });
+        }
+
+        // BUG: FIRST DOT AT THE TOP LEFT!!
+        const jsPsych = initJsPsych({
+            // show_progress_bar: true,
+            on_finish: function() 
+            {
+            // const data = jsPsych.data.get().csv();
+            // // // Save the data as a CSV file
+            // saveData("experiment_data_part1.csv", data);
+            // jsPsych.data.displayData('csv');
+
+            // const experimentData = jsPsych.data.get().values();
+
+            // Upload the data to Sciebo
+            // uploadToSciebo(experimentData);
+
+            }
+        });
+
+        console.log('jsPsych initialized');
+
+        // at the start, set the stimuli for a trial
+        
+        // Set parameters
+        const dotDur = 4; // in frames, 133ms close to 120ms
+        // const Nframes = [111,83,150,115,245,214,150,313,120,134,210,110,114,169,253,130,94,75,178,265];// 114 //100; // hardcoded for 3.3s duration -- fix this acc to videos!! for _M_A_
+        // const Nframes = [108,108,123,145,230,139,100,220,114,100,151,140,180,138,180,132,100,82,147,240]; // for _F_A
+        const Nframes = 94; // remove the shortest videos!!
+        // const Nframes = [108,108,145,114,100,138,100,82]; // for _F_A
+        const NdotsPerActor = 13;
+        const Ndots = NdotsPerActor * 2;
+        
+        const noiseSpread = 200; // spread of noise from center
+
+        const control_ = "LRswapped"; // Options: 'inverted', 'LRflipped' (agents look away), 'scr', 'LRswapped' (agent positions swapped, still social)
+
+        // var stimList = [
+        //     ['come_closer_F_A.txt','come_closer_F_B.txt'],
+        //     ['get_down_F_A.txt','get_down_F_B.txt'],   
+        //     ['go_overthere_F_A.txt','go_overthere_F_B.txt'], 
+        //     ['look_ceiling_F_A.txt', 'look_ceiling_F_B.txt'],
+        //     ['look_floor_F_A.txt', 'look_floor_F_B.txt'],
+        //     ['pick_up_F_A.txt','pick_up_F_B.txt'],
+        //     ['stand_up_F_A.txt','stand_up_F_B.txt'],
+        //     // ['stop_F_A.txt','stop_F_B.txt'],
+        // ];
+
+        var stimList = ['come_closer','get_down','go_overthere','look_ceiling',
+            'look_floor','pick_up','stand_up']
+        const repeatCount = stimList.length-1; //12-1;
+
+        stimList = stimList.flatMap(row => Array(repeatCount).fill(row));
+        console.log('stimList',stimList)
+
+        const resp_choices = ['come closer', 
+            'get down',    
+            'go over there',
+            'look at<br>the ceiling', 
+            'look at<br>the floor',        
+            'pick it up',    
+            'stand up',  
+            // 'stop'
+        ] 
+
+        const resp_choices_b = ['comes closer', 
+            'squats down',  
+            'goes in the indicated direction',
+            'turns to look<br>at the ceiling', 
+            'bends to look<br>at the floor',         
+            'picks object<brup',   
+            'stands up',  
+            // 'stops walking',         
+        ] 
+
+        const resp_choices_alltrials = [];
+        // Iterate over each choice
+        resp_choices.forEach((rowChoice, rowIndex) => {
+            resp_choices.forEach((colChoice, colIndex) => {
+                if (rowIndex !== colIndex) {
+                    if (Math.random() < 0.5) {
+                        resp_choices_alltrials.push([rowChoice, colChoice]); // Original order
+                    } else {
+                        resp_choices_alltrials.push([colChoice, rowChoice]); // Reversed order
+                    }
+                }
+            });
+        });
+        console.log('resp_choices_alltrials',resp_choices_alltrials);
+
+        // Generate a series from 0 to len(stimList) - 1
+        const series = Array.from({ length:stimList.length }, (_, index) => index);
+
+        // Function to shuffle the series array
+        function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+        }
+
+        // Scramble the series
+        const trialSeq = shuffleArray(series); // to make sure stimulus and response sequences are from the same rows
+
+
+        const Nstims = stimList.length;
+        const Ntrials = stimList.length;//8;//8;
+
+        const thresh = 100;
+        const diff = 15;
+        const NoiseLevels = [thresh-2*diff, thresh-diff, thresh+diff, thresh+2*diff]; // loaded from NoiseLevels.mat
+        // const NoiseLevels = [16, 48, 80, 112]; // loaded from NoiseLevels.mat
+        const NtrialsPerNoiselevel = Math.round(Ntrials / NoiseLevels.length); // 64/4 = 16
+        const NnoiseDotsAll = jsPsych.randomization.shuffle(
+        NoiseLevels.flatMap(level => Array(NtrialsPerNoiselevel).fill(level))
+        ); // shuffled array with 64 trials specifying how much noise each trial should have
+        
+        const NtrialsPerStim = Math.round(Ntrials / stimList.length); // 64/8 = 16
+        // const stimAll = jsPsych.randomization.shuffle(
+        // stimList.flatMap(level => Array(NtrialsPerStim).fill(level))
+        const stimAll = stimList;
+        // ); // shuffled array with 64 trials specifying which stimulus to present
+        // will contain repeated elements from the NoiseLevels array, where each element is repeated
+        // NtrialsPerNoiselevel times.
+        console.log('stimAll',stimAll)
+
+        console.log('NnoiseDotsAll:',NnoiseDotsAll)
+        
+        const NstimDots = 16; // number of stimulus dots
+        const NdotsToShow = NstimDots;
+
+        const setSize = NdotsToShow / dotDur; // number of dots changed per frame
+        // console.log("Set Size:", setSize); 
+
+        // Set bounds for dot sets
+        const setBounds = Array.from({ length: dotDur + 1 }, (_, i) => i * (NdotsToShow / dotDur));
+        // console.log("Set Bounds:", setBounds);
+
+        const Nsets = setBounds.length - 1; // number of sets
+        // console.log("Number of Sets:", Nsets);
+
+        // Initialize arrays
+        let selTemp = Array(NdotsToShow).fill(null);
+        let selStim = [];
+        let f = 0;
+
+        // Helper function to sample from an array
+        function sampleFrom(N, toChooseFrom) {
+            // Ensure toChooseFrom is a flat array
+            if (!Array.isArray(toChooseFrom)) {
+                throw new Error("toChooseFrom must be an array");
+            }
+
+            // Shuffle the array
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            if (N < toChooseFrom.length) { // WHY IS 
+                // If N is smaller than the length of toChooseFrom, shuffle and return the first N elements
+                const sorted = shuffle([...toChooseFrom]); // Clone the array before shuffling
+                return sorted.slice(0, N);
+            } else {
+                // If N is larger, repeat toChooseFrom enough times, shuffle, and return the first N elements
+                const repeated = Array.from({ length: Math.ceil(N / toChooseFrom.length) }, () => toChooseFrom).flat();
+                const sorted = shuffle(repeated);
+                return sorted.slice(0, N);
+            }
+        }
+
+        function getDistrInfo(array) {
+            // Flatten the 2D array into a 1D array
+            const flattened = array.flat();
+            
+            // Sort the 1D array in ascending order
+            const sorted = flattened.sort((a, b) => a - b);
+            
+            const length = sorted.length;
+
+            // Helper function to find the value at a specific percentile
+            function getPercentile(sortedArray, percentile) {
+                const index = (percentile / 100) * (sortedArray.length - 1);
+                const lower = Math.floor(index);
+                const upper = Math.ceil(index); 
+                const weight = index - lower;
+                return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
+            }
+
+            // Calculate Q1 (25th percentile), median (50th percentile), and Q3 (75th percentile)
+            const q1 = getPercentile(sorted, 25);
+            const median = getPercentile(sorted, 50);
+            const q3 = getPercentile(sorted, 75);
+
+            console.log('q1, median, q3 :', q1, median, q3 )
+
+            return { q1, median, q3 };
+        }
+
+        // Generate stimulus dots to be presented (can be scaled up to mutiple trials and doesn't depend on performance,
+        // hence outside on_load)
+        while (f <= Nframes + Nsets) {
+            for (let s = 0; s < Nsets; s++) {
+                const whichDots = Array.from({ length: setBounds[s + 1] - setBounds[s] }, (_, i) => setBounds[s] + i);
+                // console.log("Which Dots:", whichDots);
+
+                const availableDots = Array.from({ length: Ndots }, (_, i) => i + 1).filter(dot => !selTemp.includes(dot));
+                selTemp.splice(setBounds[s], whichDots.length, ...sampleFrom(setSize, availableDots));
+                // console.log('typeof selTemp', typeof selTemp);
+                // selTemp.sort((a, b) => a - b); // sort selTemp (for later tests) --> somehow works weirdly for the 1st 4 dots so scrapped it.
+                selStim.push([...selTemp]);
+                f++;
+            }
+        }
+
+        // Remove initial frames
+        selStim = selStim.slice(Nsets, Nframes + Nsets);
+
+        // Determine stimulus order
+        const stimTrialOrder = Array.from({ length: Ntrials }, (_, i) => i % Nstims).sort(() => 0.5 - Math.random());
+
+        function createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, numFrames = 100, numDots = 16) {
+            // function to present the stimuli
+            console.log('inside createStimulusClip function')
+            // console.log('getDimensions(stimx)',getDimensions(stimx))
+            // console.log('getDimensions(stimz)',getDimensions(stimz))
+            // console.log('getDimensions(noisex)',getDimensions(noisex))
+            // console.log('getDimensions(noisez)',getDimensions(noisez))
+            // console.log('Check stimx for undefined values:', stimx.some(row => row.some(val => val === undefined)));
+            // console.log('Check stimz for undefined values:', stimz.some(row => row.some(val => val === undefined)));
+            // Create the dot container
+            const container = document.createElement("div");
+            container.id = "dot-container";
+            container.style.position = "relative";
+            // container.style.width = "50vw";
+            // container.style.height = "50vh";
+            container.style.overflow = "visible"; // Ensure dots stay inside container
+
+            // Create a reusable dot array
+            const dots = [];
+            for (let i = 0; i < numDots+NnoiseDots+1; i++) {
+            // for (let i = 0; i < numDots; i++) {
+                const dot = document.createElement("div");
+                dot.className = "dot";
+                dot.style.position = "absolute";
+                dot.style.width = "5px";//"10px";
+                dot.style.height = "5px";//"10px";
+                dot.style.backgroundColor = "black";
+                dot.style.borderRadius = "50%";
+                
+                // Initialize all dots with a default position off-screen
+                dot.style.left = "-9999px";
+                dot.style.bottom = "-9999px";
+
+                container.appendChild(dot);
+                dots.push(dot);
+            }
+            
+            // Animation loop
+            let currentFrame = 0;
+            const interval = setInterval(() => {
+                // if (currentFrame >= 1) { // for debugging
+                if (currentFrame >= numFrames) {
+                // if (currentFrame >= 1) {
+                    clearInterval(interval); // End animation
+                    return;
+                }
+                // console.log(`Current Frame: ${currentFrame}, stimx:`, stimx[currentFrame], 'stimz:', stimz[currentFrame]);
+
+                // Update dot positions for the current frame
+                //present stimdots
+                for (let i = 0; i < numDots; i++) {
+                    dots[i].style.backgroundColor = 'black';//'white';// for debugging. "black";
+                    dots[i].style.left = stimx[currentFrame][i] !== undefined 
+                        ? `${stimx[currentFrame][i]}%` 
+                        : (() => {
+                            console.error(`Undefined value in stimx: Frame ${currentFrame}, Dot ${i}`);
+                            return '50%';
+                        })();
+
+                    dots[i].style.bottom = stimz[currentFrame][i] !== undefined 
+                        ? `${stimz[currentFrame][i]}%` 
+                        : (() => {
+                            console.error(`Undefined value in stimz: Frame ${currentFrame}, Dot ${i}`);
+                            return '50%';
+                        })();
+                    // if (currentFrame==0){
+                    //     console.log('i',i,'dots[i].style.left',dots[i].style.left,'dots[i].style.bottom',dots[i].style.bottom);
+                    // }
+                }
+
+                //present noisedots
+                // for (let i = 0; i < NnoiseDots; i++) {
+                //     iDots = i + numDots
+                //     dots[iDots].style.backgroundColor = 'black';// for debugging "black";
+                //     dots[iDots].style.left = noisex[currentFrame][i] !== undefined 
+                //         ? `${noisex[currentFrame][i]}%` 
+                //         : (() => {
+                //             console.error(`Undefined value in noisex: Frame ${currentFrame}, Dot ${i}`);
+                //             return '50%';
+                //         })();
+
+                //     dots[iDots].style.bottom = noisez[currentFrame][i] !== undefined 
+                //         ? `${noisez[currentFrame][i]}%` 
+                //         : (() => {
+                //             console.error(`Undefined value in noisez: Frame ${currentFrame}, Dot ${i}`);
+                //             return '50%';
+                //         })();
+                // }
+                // break
+                currentFrame++;
+            },33); //, 100); // , 33);   ~30 fps
+
+            dots.forEach((dot, i) => {
+            if (dot.style.left === "-9999px" || dot.style.bottom === "-9999px") {
+                console.warn(`Dot ${i} has an uninitialized position at frame ${currentFrame}.`);
+                dot.style.backgroundColor = "red"; 
+            } else {
+                console.log(
+                    `Frame ${currentFrame}, Dot ${i}: left=${dot.style.left}, bottom=${dot.style.bottom}`
+                );
+            }
+            });
+            return container;
+        }
+
+
+
+        async function test(){
+            console.log('test')
+        }
+
+        function getDimensions(array) {
+            const nrows_func = array.length; // Number of rows
+            console.log('in func',nrows_func)
+            const ncols_func = array[0]?.length || 0; // Number of columns in the first row, or 0 if empty
+            console.log('in func',ncols_func)
+            // return { nrows_func, ncols_func };
+        }
+
+        // Function to transpose a 2D array
+        function transpose(array) {
+            return array[0].map((_, colIndex) => array.map(row => row[colIndex]));
+        }
+
+        function linspace(start, end, num) {
+            const step = (end - start) / (num - 1); // Calculate step size
+            return Array.from({ length: num }, (_, i) => start + i * step);
+        }
+
+        // // Function to save data as a file
+        // function saveData(filename, data) {
+        //     const blob = new Blob([data], { type: "text/csv" });
+        //     const link = document.createElement("a");
+        //     link.href = window.URL.createObjectURL(blob);
+        //     link.download = filename;
+        //     link.click();
+        // }
+        function saveData(filename, data) {
+            const blob = new Blob([data], { type: "text/plain" }); // Create a Blob object with the data
+            const link = document.createElement("a"); // Create an invisible <a> element
+            link.href = window.URL.createObjectURL(blob); // Create a URL for the Blob
+            link.download = filename; // Set the download filename
+            document.body.appendChild(link); // Append the <a> to the DOM
+            link.click(); // Trigger a click to start the download
+            document.body.removeChild(link); // Remove the <a> after download
+        }
+
+
+        // let test1 = 0;
+
+        let dotTrial,respPage, confPage,start_time_conf,breakPage;
+
+        let timeline = [];
+
+
+
+        introPage = {
+                type: jsPsychSurveyHtmlForm,
+                // stimulus:'<div class="center-stimulus"> Welcome!</div>',
+                // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
+                // html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe the social interaction best.<br><br>',
+                html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe what the person who initiated the action (person 1) said.<br><br>',
+               
+                on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        }
+        timeline.push(introPage)
+
+        let curr_stim;
+        // for (let jj = 1; jj<Ntrials+1; jj++) {
+        for (let jj = 0; jj<Ntrials; jj++) {
+
+                
+            dotTrial = {
+                type:  jsPsychHtmlKeyboardResponse,
+                stimulus: function () {
+                    return `<div id="dot-container" style="position: relative; width: 40vw; height: 70vh;"></div>`;
+                },
+                choices: 'NO_KEYS',
+                on_load: async function () {
+
+                    console.log('trial jj=',jj)
+                    
+                    // for each trial, first read the stim file, shift and scale values, concat across agents etc. (only stim)
+                    // stim stuff begins
+                    const indA = stimTrialOrder[jj - 1];
+                    const indB = indA;
+                    // const NnoiseDots = NnoiseDotsAll[jj];
+                    const NnoiseDots = 1 // when developing code
+
+                    const twosexes = ['M', 'F'];
+                    const sex = twosexes[Math.floor(Math.random() * twosexes.length)];
+
+                    // let vid_name = 'come_closer_F'; //'look_ceiling_F';
+                    if (Math.random() < 0.5) {
+                        curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
+                    }
+                    else {
+                        curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_B_LRswapped.txt`, `${stimAll[trialSeq[jj]]}_${sex}_A_LRswapped.txt`];//stimAll[jj];
+                    }
+                    console.log('curr_stim',curr_stim)
+                    // const stimFileA = `stims/${vid_name}_A.txt`;
+                    // const stimFileB = `stims/${vid_name}_B.txt`;
+                    const stimFileA = `stims/${curr_stim[0]}`;
+                    const stimFileB = `stims/${curr_stim[1]}`;
+
+                    console.log("File path for A:", stimFileA);
+                    console.log("File path for B:", stimFileB);
+
+
+                    let dataA = await fetch(`./${stimFileA}`); //await fetch('./come_closer_F_A.txt');
+                    let dataB = await fetch(`./${stimFileB}`); //await fetch('./come_closer_F_A.txt');
+                    
+                    textA = await dataA.text();
+                    textB = await dataB.text();
+
+                    console.log('dataA:',dataA,'dataB:',dataB)
+
+                    const linesA = textA.trim().split('\n');// Split the data into lines and skip the first line (header)
+                    const linesB = textB.trim().split('\n');// Split the data into lines and skip the first line (header)
+                    
+                    // Handle header if i = 0
+                    // const header = i === 0 ? lines[0] : null;
+                    const headerA = linesA[0]; // Always take the first line as the header
+                    const headerB = linesB[0]; // Always take the first line as the header
+                    console.log('headerA',headerA)
+                    const totFrames = headerA.match(/frames\s*=\s*(\d+)/)[1]; // tot frames is useful to reshape the array
+                    console.log('totFrames',totFrames)
+                    const bodyA = linesA.slice(1);
+                    const bodyB = linesB.slice(1);
+                    const columnsA = bodyA.map(line => {
+                        const parts = line.trim().split(/\s+/); // Split line by whitespace
+                        return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
+                    });
+                    const columnsB = bodyB.map(line => {
+                        const parts = line.trim().split(/\s+/); // Split line by whitespace
+                        return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
+                    });
+                    // console.log('columnsA',columnsA, ',columnsA.length()', columnsA.length)//, ',test1:',test1)
+                    // console.log('columnsB',columnsB, ',columnsB.length()', columnsB.length)//, ',test1:',test1)
+                    
+                    // Get dimensions
+                    // console.log('columnsA dims')
+                    // getDimensions(columnsA);
+                    // console.log('columnsB dims')
+                    // getDimensions(columnsB);
+
+                    // Separate columns
+                    ax = columnsA.map(row => row[0]); // Extract first column
+                    az = columnsA.map(row => row[1]); // Extract second column
+                    // console.log('ax',ax,typeof ax[0]); // Output: "number"
+
+                    bx = columnsB.map(row => row[0]); // Extract first column
+                    bz = columnsB.map(row => row[1]); // Extract second column
+                    // console.log('bx',bx,typeof bx[0]); // Output: "number"
+
+                    /* shift and scale! */
+                    let shift=50;
+                    let scale=20;
+                    // Find the minimum and maximum values
+                    let min = Math.min(...ax);
+                    let max = Math.max(...ax);
+                    // Center and normalize the array
+                    ax = ax.map(num => (num - min) / (max - min));
+                    // console.log('ax after norm',ax,typeof ax[0]); // Output: "number"
+                    ax = ax.map(num => num * scale + shift);
+                    // console.log('ax after shift and scale',ax,typeof ax[0]); // Output: "number"
+
+                    min = Math.min(...ax);
+                    max = Math.max(...ax);
+                    // console.log('ax: min', min,',max', max)
+
+                    shift=30//-20;
+                    // scale=20; // scale should be the same for both x's
+                    // Find the minimum and maximum values
+                    min = Math.min(...bx);
+                    max = Math.max(...bx);
+                    bx = bx.map(num => (num - min) / (max - min));
+                    // console.log('bx after norm',bx,typeof bx[0]); // Output: "number"
+                    bx = bx.map(num => num * scale + shift);
+                    // console.log('bx after shift and scale',bx,typeof bx[0]); // Output: "number"
+
+                    min = Math.min(...bx);
+                    max = Math.max(...bx);
+                    // console.log('bx: min', min,',max', max)
+                    
+                    shift=20//-30; // same shift and scale for both 
+                    scale=60;
+                    // vertical
+                    // Find the minimum and maximum values
+                    min = Math.min(...az);
+                    max = Math.max(...az);
+                    // Center and normalize the array
+                    az = az.map(num => (num - min) / (max - min));
+                    az = az.map(num => num * scale + shift);
+
+                    min = Math.min(...az);
+                    max = Math.max(...az);
+                    // console.log('az: min', min,',max', max)
+                    
+                    // // Find the minimum and maximum values
+                    min = Math.min(...bz);
+                    max = Math.max(...bz);
+                    // Center and normalize the array
+                    bz = bz.map(num => (num - min) / (max - min));
+                    bz = bz.map(num => num * scale + shift);
+
+                    min = Math.min(...bz);
+                    max = Math.max(...bz);
+                    // console.log('bz: min', min,',max', max)
+
+                    // console.log('ax not reshaped',ax)
+                    let rows = totFrames;
+                    let cols = 13;
+                    // ax = reshape(ax, NdotsPerActor);
+                    // az = reshape(az, NdotsPerActor);
+                    ax = Array.from({ length: rows }, (_, i) => 
+                            ax.slice(i * cols, (i + 1) * cols)
+                    );
+                    az = Array.from({ length: rows }, (_, i) => 
+                            az.slice(i * cols, (i + 1) * cols)
+                    );
+                    
+                    // Get dimensions
+                    // console.log('ax reshaped',ax)
+                    // console.log('ax dims')
+                    // getDimensions(ax);
+
+                    // console.log('bx not reshaped',bx)
+                    bx = Array.from({ length: rows }, (_, i) => 
+                            bx.slice(i * cols, (i + 1) * cols)
+                    );
+                    bz = Array.from({ length: rows }, (_, i) => 
+                            bz.slice(i * cols, (i + 1) * cols)
+                    );
+                    // Get dimensions
+                    // console.log('bx reshaped',bx)
+                    // console.log('bx dims')
+                    // getDimensions(bx);
+                    
+                    let stimx = [];
+                    let stimz = [];
+                    // console.log('selStim',selStim)
+                    // console.log('Nframes',Nframes)
+                    ax_bx = ax.map((row, i) => row.concat(bx[i]));  //ax.concat(bx);
+                    az_bz = az.map((row, i) => row.concat(bz[i]));  //ax.concat(bx);
+                    // console.log('ax')
+                    // getDimensions(ax)
+                    // console.log('bx')
+                    // getDimensions(bx)
+                    // console.log('ax_bx',ax_bx)
+                    // getDimensions(ax_bx)
+                    min = Math.min(...ax_bx.flat());
+                    max = Math.max(...ax_bx.flat());
+                    // console.log('ax_bx : min', min,',max', max)
+                    min = Math.min(...az_bz.flat());
+                    max = Math.max(...az_bz.flat());
+                    // console.log('az_bz : min', min,',max', max)
+                    // end of stim stuff
+
+                    // start of noise stuff
+
+                    NdotsToShowNoise = NnoiseDots; 
+                    // setSizeNoise = Math.ceil(NdotsToShowNoise/dotDur) // as framerate is 30Hz, I will change a dot every 4 frames, so to make the changes as asynchroneous as possible, I change as few dots as possible - that's 3 per frame
+                    setBoundsNoise = linspace(0,NdotsToShowNoise,dotDur+1) // start and stop of each quarter.
+                    setBoundsNoise = setBoundsNoise.map(num => Math.ceil(num));
+                    // console.log('setBoundsNoise',setBoundsNoise)
+
+                    const possCoordsNoisex = transpose(ax_bx);
+                    const possCoordsNoisez = transpose(az_bz);
+                    // console.log('possCoordsNoisex',possCoordsNoisex,'possCoordsNoisex.length',possCoordsNoisex.length)
+                    
+                    // Initialize arrays (which are later combined to generate noise) with 0
+                    let offsetx = Array.from({ length: NnoiseDots }, () =>
+                    Array(Nframes).fill(0)
+                    );
+                    let offsetz = Array.from({ length: NnoiseDots }, () =>
+                    Array(Nframes).fill(0)
+                    );
+                    let timeWindow = Array.from({ length: NnoiseDots }, () =>
+                    Array(Nframes).fill(0)
+                    );
+                    let swapXZ = Array.from({ length: NnoiseDots }, () =>
+                    Array(Nframes).fill(0)
+                    );
+                    let flipX = Array.from({ length: NnoiseDots }, () =>
+                    Array(Nframes).fill(1)
+                    );
+                    let flipZ = Array.from({ length: NnoiseDots }, () =>
+                    Array(Nframes).fill(1)
+                    );
+                    console.log('offsetx[0][0]:',offsetx[0][0]) // sanity check. should be 0
+
+                    // Initialize `sel` as a 2D array with NnoiseDots rows and (Nframes + Nsets) columns, filled with NaN
+                    let sel = Array.from({ length: NnoiseDots }, () => 
+                        Array(Nframes + Nsets).fill(NaN)
+                    );
+                    // console.log('sel.length',sel.length,',sel:',sel)
+                    // Select and transform dots
+                    let f = 0; // Frame counter
+
+                    while (f <= Nframes + Nsets) { // repmat not working!!!!!
+                        for (let s = 0; s < Nsets; s++) { // for each set of NnoiseDots/4 dots
+                            const whichDots = Array.from(
+                            { length: setBoundsNoise[s + 1] - setBoundsNoise[s] },
+                            (_, i) => setBoundsNoise[s] + i
+                            ); // should be something like 0-12, 12-24 etc
+                            // console.log('whichDots:',whichDots) // this is correct
+                            const range = Array.from({ length: Ndots }, (_, i) => i); // 1:Ndots (1:26) --> inds from which to select stimuli
+                            let sampled = sampleFrom(Math.ceil(NnoiseDots/dotDur), range);  // sample 16 dots
+                            // console.log('sampled:',sampled) // (should be 12 values between 1 and 26 from the stim dots for Noisedots=48)
+                            // edit a quarter of dots
+                            samp = -1;
+                            whichDots.forEach((dot) => { // for each of the 12 dots (48 noisedots version). e.g. dot goes from 36 to 47
+                                samp++;
+
+                                // assign temporary values to each dot within the set
+                                main_dot_ind = sampled[samp] //selTemp[dot]; // sel has the dot number (wrt the main stim set) 
+                                // for each of the 48 dots and Nframes+4 frames
+                                offsetxTemp_ = (Math.random() - 0.5) * noiseSpread;
+                                offsetzTemp_ = (Math.random() - 0.5) * noiseSpread; 
+                                timeWindowTemp_ = Math.floor(Math.random() * (Nframes - 3));
+                                swapXZTemp_ =  Math.round(Math.random());
+                                flipXTemp_ = Math.random() < 0.5 ? -1 : 1; 
+                                flipZTemp_ = Math.random() < 0.5 ? -1 : 1; 
+
+                                for (let ind = 0; ind < 4; ind++){ // repmat in matlab
+                                    sel[dot][f+ind] = main_dot_ind
+                                    offsetx[dot][f+ind] = offsetxTemp_ //offsetxTemp[dot]; // Random x-offset
+                                    offsetz[dot][f+ind] = offsetzTemp_ //offsetzTemp[dot]; // Random z-offset
+                                    timeWindow[dot][f+ind] = timeWindowTemp_ + ind; //timeWindowTemp[dot]+ind;
+                                    swapXZ[dot][f+ind] = swapXZTemp_; // swapXZTemp[dot];
+                                    flipX[dot][f+ind] = flipXTemp_; //flipXTemp[dot];
+                                    flipZ[dot][f+ind] = flipZTemp_; //flipZTemp[dot];
+                                }
+                            });
+                            // console.log('offsetxTemp',offsetxTemp);
+                            f++;
+                        }
+                    }
+                    // console.log('after sel.length',sel.length,',sel:',sel)
+                    // console.log('before splicing.. offsetx',offsetx)
+                    // console.log('offsetx[0][0]:',offsetx[0][0])
+                    // sel = sel.slice(Nsets, Nframes + Nsets); // Remove initial frames
+                    // console.log('before, sel',sel)
+                    sel = sel.map(row => row.slice(Nsets,Nframes+Nsets));
+                    // console.log('after, sel',sel)
+                    offsetx = offsetx.map(row => row.slice(Nsets,Nframes+Nsets));
+                    offsetz = offsetz.map(row => row.slice(Nsets,Nframes+Nsets));
+
+                    // console.log('after sel.length',sel.length,',sel:',sel)
+                    // console.log('after splicing..offsetx',offsetx)
+                    // console.log('offsetx[0][0]:',offsetx[0][0])
+
+                    let noisex = Array.from({ length: Nframes }, () =>
+                    Array(NnoiseDots).fill(0)
+                    );
+                    let noisez = Array.from({ length: Nframes }, () =>
+                    Array(NnoiseDots).fill(0)
+                    );
+                    
+                    // console.log('noise initialised...')
+                    // console.log('noisex dimensions:', noisex.length, noisex[0]?.length || 0);
+                    // console.log('noisez dimensions:', noisez.length, noisez[0]?.length || 0);
+
+                    
+                    for (let f = 0; f < Nframes; f++) {
+                        for (let d = 0; d < NnoiseDots; d++) {
+
+                            if (swapXZ[d][f]) 
+                            {
+                                // Perform coordinate swap and offset adjustment
+                                // noisex[d][f] =
+                                noisex[f][d] =
+                                    flipX[d][f] *
+                                    possCoordsNoisez[sel[d][f]][timeWindow[d][f]] +
+                                    offsetx[d][timeWindow[d][f]]; // offsetx[sel[d][f]][timeWindow[d][f]];  just need 'd' here. E.g if the dot is 26 in the actual dot array, for the offset, it' still a value between 1 and Nnoisedots
+                                // noisex[f][d] =
+                                noisez[f][d] = 
+                                    flipZ[d][f] *
+                                    possCoordsNoisex[sel[d][f]][timeWindow[d][f]] +
+                                    offsetz[d][timeWindow[d][f]]; // offsetz[sel[d][f]][timeWindow[d][f]];
+                            } 
+                            else 
+                            {
+                                // Standard coordinate adjustment
+                                noisex[f][d] =
+                                    flipX[d][f] *
+                                    possCoordsNoisex[sel[d][f]][timeWindow[d][f]] +
+                                    offsetx[d][timeWindow[d][f]]; //offsetx[sel[d][f]][timeWindow[d][f]];
+                                noisez[f][d] =
+                                    flipZ[d][f] *
+                                    possCoordsNoisez[sel[d][f]][timeWindow[d][f]] +
+                                    offsetz[d][timeWindow[d][f]]; // //offsetz[sel[d][f]][timeWindow[d][f]];
+                            }
+                        }
+                    }
+                    // console.log('noisex.length',noisex.length, ', noisex[0]?.length || 0',  noisex[0]?.length || 0)
+                    console.log('noisex',noisex)
+
+                    /* shift and scale noise!! */
+                    shift=0;
+                    scale=100;
+                    // Find the minimum and maximum values
+                    min = Math.min(...noisex.flat());
+                    max = Math.max(...noisex.flat());
+                    console.log('before: noisex: min', min,',max', max) // there is a bug already before!!
+                    // Center and normalize the array
+                    noisex = noisex.map(row => row.map(num => (num - min) / (max - min)) ); //noisex.map(num => (num - min) / (max - min));
+                    noisex = noisex.map(row => row.map(num => num * scale + shift));
+                    // console.log('ax after shift and scale',ax,typeof ax[0]); // Output: "number"
+                    min = Math.min(...noisex.flat());
+                    max = Math.max(...noisex.flat());
+                    console.log('noisex after : min', min,',max', max)
+                    
+
+                    shift=0//-30; // same shift and scale for both 
+                    scale=100 //100;
+                    // vertical
+                    // Find the minimum and maximum values
+                    min = Math.min(...noisez.flat());
+                    max = Math.max(...noisez.flat());
+                    // console.log('noisez before: min', min,',max', max)
+
+                    // Center and normalize the array
+                    noisez = noisez.map(row => row.map(num => (num - min) / (max - min)));
+                    noisez = noisez.map(row => row.map(num => num * scale + shift));
+
+                    min = Math.min(...noisez.flat());
+                    max = Math.max(...noisez.flat());
+                    // console.log('noisez after: min', min,',max', max)
+                    // getDistrInfo(noisez)
+
+                    // end of noise stuff
+
+                    for (let f = 0; f < Nframes; f++) {
+                        stimx.push(
+                            selStim[f].map(index => {
+                                if (ax_bx[f][index - 1] === undefined) {
+                                    console.error(`Undefined in stimx at frame ${f}, index ${index - 1}`);
+                                }
+                                return ax_bx[f][index - 1];
+                            })
+                        );
+
+                        stimz.push(
+                            selStim[f].map(index => {
+                                if (az_bz[f][index - 1] === undefined) {
+                                    console.error(`Undefined in stimz at frame ${f}, index ${index - 1}`);
+                                }
+                                return az_bz[f][index - 1];
+                            })
+                        );
+                    }
+
+                    min = Math.min(...stimx.flat());
+                    max = Math.max(...stimx.flat());
+                    console.log('stimx: min', min,',max', max)
+                    
+                    min = Math.min(...stimz.flat());
+                    max = Math.max(...stimz.flat());
+                    console.log('stimz: min', min,',max', max)
+
+                    min = Math.min(...noisex.flat());
+                    max = Math.max(...noisez.flat());
+                    console.log('noisex: min', min,',max', max)
+
+                    min = Math.min(...noisex.flat());
+                    max = Math.max(...noisez.flat());
+                    console.log('noisez: min', min,',max', max)
+
+                    const container = document.getElementById("dot-container");
+                    if (container) {
+                        // container.replaceWith(createStimulusClip(stimx, stimz, Nframes, NstimDots));
+                        container.replaceWith(createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, Nframes, NstimDots));
+                    } else {
+                        console.error("Dot container not found!");
+                    }
+
+            },
+            trial_duration: 3200 // End trial after 1 second (10 sets * .1 seconds)
+            };
+            timeline.push(dotTrial);
+
+            respPage = {
+            type: jsPsychHtmlSliderResponse,
+                // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
+                // stimulus: '<p style="text-align: center;">Indicate your response!</p>',
+                stimulus: '<p style="text-align: center;">Person 1 said: </p>',
+                // choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
+                labels: resp_choices_alltrials[trialSeq[jj]],
+                prompt: " ",
+                // slider_start: 50,
+                slider_width: 400, // Width of the slider in pixels
+                require_movement: true,
+                // response_ends_trial:true,
+                on_load: function(){
+                    jsPsych.data.get().addToLast({ nt: jj+1, stim: stimAll[trialSeq[jj]], resp: resp_choices_alltrials[trialSeq[jj]]});
+
+                    
+                    const sliderContainer = document.querySelector('.jspsych-content');
+                    sliderContainer.style.display = 'flex';
+                    sliderContainer.style.justifyContent = 'center';
+                    sliderContainer.style.alignItems = 'center';
+                    sliderContainer.style.flexDirection = 'column';
+                    sliderContainer.style.height = 'auto'; // Use 'auto' to prevent height from stretching
+                    sliderContainer.style.maxHeight = '100vh'; // Prevent exceeding viewport height
+
+                    // Adjust label font size and alignment
+                    const labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
+                    labels.forEach((label) => {
+                    label.style.fontSize = '16px'; // Increase font size
+                    label.style.marginTop = '10px'; // Add space below slider for labels
+                    });
+
+                    // Increase slider size
+                    const slider = document.querySelector('input[type="range"]');
+                    slider.style.height = '15px'; // Adjust slider height
+                    slider.style.width = '100%'; // Ensure it spans the container width
+                    slider.style.margin = '20px 0'; // Add spacing above and below the slider
+
+                    // Add padding to avoid altering global layout
+                    sliderContainer.style.padding = '20px';
+
+                },
+            };
+            timeline.push(respPage)
+
+            if ((jj%7 == 0) && (jj != 0)) {
+
+                breakPage = {
+                    type: jsPsychSurveyHtmlForm,
+                    // stimulus:'<div class="center-stimulus"> Welcome!</div>',
+                    // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
+                    // html: '<p style="text-align: left;">Part 2: Threshold estimation (remove from subs)<br><br>Here you will watch short animation clips and<br>answer questions about<br>(1) whether the social interaction in each clip was<br>upright or inverted, <br>(2) how confident you feel about your response.</p>',
+                    html: '<p style="text-align: center; width: 400px">Short break.<br><br>Continue when you are ready.<br>Trials finished =' + jj + '</p>',
+                    on_load: function() {
+                    const buttons = document.querySelectorAll('.jspsych-btn');
+                    buttons.forEach(button => {
+                        button.style.display = 'block';
+                        button.style.margin = '0 auto';
+                    });
+                    }
+                };
+
+                timeline.push(breakPage)
+                // break;
+            }
+
+
+        } 
+
+        endPage = {
+                type: jsPsychSurveyHtmlForm,
+                // stimulus:'<div class="center-stimulus"> Welcome!</div>',
+                // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
+                html: '<p style="text-align: center; width: 400px">Great job!<br></p>',
+
+                on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+                const data = jsPsych.data.get().csv();
+                // Save the data as a CSV file
+                saveData("experiment_data_prelims.csv", data);
+
+                // Send data to the upload link
+                // const experimentData = jsPsych.data.get().json();
+                // uploadDataToSciebo(experimentData);
+            }
+        }
+        timeline.push(endPage)
+    
+        jsPsych.run(timeline);
+
+    </script>
+
+</body>
+
+</html>

@@ -81,46 +81,6 @@
         `;
         // Add the CSS to the document head and run the trial
         document.head.insertAdjacentHTML("beforeend", centerStyle);
-        
-        // const scieboUploadLink = 'https://uni-bonn.sciebo.de/s/I20gjbp8BNmkjVO';
-
-        // // Function to get current datetime as a string
-        // function getCurrentDatetime() {
-        //     const now = new Date();
-        //     const year = now.getFullYear();
-        //     const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        //     const day = String(now.getDate()).padStart(2, '0');
-        //     const hours = String(now.getHours()).padStart(2, '0');
-        //     const minutes = String(now.getMinutes()).padStart(2, '0');
-        //     const seconds = String(now.getSeconds()).padStart(2, '0');
-        //     return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-        // }
-
-        // Function to send data to Sciebo
-        // function uploadToSciebo(data) {
-        //     const formData = new FormData();
-            
-        //     // Convert experiment data to JSON format
-        //     const jsonData = JSON.stringify(data);
-
-        //     // Append the file to FormData with a desired file name
-        //     formData.append('file', new Blob([jsonData], { type: 'application/json' }), `experiment_data${timestamp}.json`);
-
-        //     // Use fetch to upload the file
-        //     fetch(scieboUploadLink, {
-        //         method: 'POST',
-        //         body: formData
-        //     })
-        //     .then(response => {
-        //         if (response.ok) {
-        //             console.log('Data uploaded successfully to Sciebo!');
-        //         } else {
-        //             console.error('Upload failed:', response.statusText);
-        //         }
-        //     })
-        //     .catch(error => console.error('Error uploading data:', error));
-        // }
-
 
         // BUG: FIRST DOT AT THE TOP LEFT!!
         const jsPsych = initJsPsych({
