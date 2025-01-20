@@ -164,22 +164,22 @@
         stimList = stimList.flatMap(row => Array(repeatCount).fill(row));
         console.log('stimList',stimList)
 
-        const resp_choices = ['come closer', 
-            'get down',    
-            'go over there',
-            'look at<br>the ceiling', 
-            'look at<br>the floor',        
-            'pick it up',    
-            'stand up',  
-            // 'stop'
-        ] 
-
-        const resp_choices_b = ['comes closer', 
+        // const resp_choices = ['come closer', 
+        //     'get down',    
+        //     'go over there',
+        //     'look at<br>the ceiling', 
+        //     'look at<br>the floor',        
+        //     'pick it up',    
+        //     'stand up',  
+        //     // 'stop'
+        // ] 
+        // const resp_choices_b = ['comes closer', 
+        const resp_choices = ['comes closer', 
             'squats down',  
-            'goes in the indicated direction',
+            'goes in the<br>indicated direction',
             'turns to look<br>at the ceiling', 
             'bends to look<br>at the floor',         
-            'picks object<brup',   
+            'picks object<br>up',   
             'stands up',  
             // 'stops walking',         
         ] 
@@ -495,7 +495,7 @@
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                 // html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe the social interaction best.<br><br>',
-                html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe what the person who initiated the action (person 1) said.<br><br>',
+                html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe what the person who <b>responded to the action (person 2)</b> said.<br><br>',
                
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
@@ -927,7 +927,7 @@
             type: jsPsychHtmlSliderResponse,
                 // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
                 // stimulus: '<p style="text-align: center;">Indicate your response!</p>',
-                stimulus: '<p style="text-align: center;">Person 1 said: </p>',
+                stimulus: '<p style="text-align: center;">Person 2 (responder) said: </p>',
                 // choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
                 labels: resp_choices_alltrials[trialSeq[jj]],
                 prompt: " ",
