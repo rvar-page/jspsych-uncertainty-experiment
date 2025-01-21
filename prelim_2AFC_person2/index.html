@@ -137,7 +137,7 @@
         const dotDur = 4; // in frames, 133ms close to 120ms
         // const Nframes = [111,83,150,115,245,214,150,313,120,134,210,110,114,169,253,130,94,75,178,265];// 114 //100; // hardcoded for 3.3s duration -- fix this acc to videos!! for _M_A_
         // const Nframes = [108,108,123,145,230,139,100,220,114,100,151,140,180,138,180,132,100,82,147,240]; // for _F_A
-        const Nframes = 94; // remove the shortest videos!!
+        // const Nframes = 94; // remove the shortest videos!!
         // const Nframes = [108,108,145,114,100,138,100,82]; // for _F_A
         const NdotsPerActor = 13;
         const Ndots = NdotsPerActor * 2;
@@ -146,43 +146,71 @@
 
         const control_ = "LRswapped"; // Options: 'inverted', 'LRflipped' (agents look away), 'scr', 'LRswapped' (agent positions swapped, still social)
 
-        // var stimList = [
-        //     ['come_closer_F_A.txt','come_closer_F_B.txt'],
-        //     ['get_down_F_A.txt','get_down_F_B.txt'],   
-        //     ['go_overthere_F_A.txt','go_overthere_F_B.txt'], 
-        //     ['look_ceiling_F_A.txt', 'look_ceiling_F_B.txt'],
-        //     ['look_floor_F_A.txt', 'look_floor_F_B.txt'],
-        //     ['pick_up_F_A.txt','pick_up_F_B.txt'],
-        //     ['stand_up_F_A.txt','stand_up_F_B.txt'],
-        //     // ['stop_F_A.txt','stop_F_B.txt'],
-        // ];
+        // var stimList = ['come_closer', 'get_down',   'give_me',    'go_overthere', 'help_yourself', 
+        //      'I_am_angry',  'I_am_happy', 'imitate_me', 'look_ceiling', 'look_floor', 
+        //      'move_it',     'move_over',  'no',         'pick_up',      'put_down', 
+        //      'sit_down',    'stand_up',   'stop',       'this_tall',    'which_one'] 
 
-        var stimList = ['come_closer','get_down','go_overthere','look_ceiling',
-            'look_floor','pick_up','stand_up']
+        const Nframes = 100;
+        const good_female = true; // only one of these should be true
+        const good_male = false;
+        const good_both = false;
+        
+        if (good_female)
+        {
+            var stimList = ['come_closer', 'get_down',  'go_overthere',
+             'I_am_angry',  'I_am_happy', 'imitate_me', 'look_ceiling', 'look_floor', 
+             'pick_up',      'put_down',  'stand_up'] 
+
+            const resp_choices = ['comes closer', 
+            'squats down',
+            'goes in the<br>indicated direction',
+            'asks the other<br>person to<br>calm down',
+            'expresses joy for<br>other person',
+            'imitates the other',
+            'turns to look<br>at the ceiling', 
+            'bends to look<br>at the floor',         
+            'picks up<br>something',
+            'puts down<br>something',
+            'stands up'] 
+        }
+
+        if (good_male)
+        {
+            var stimList = ['come_closer', 'go_overthere','I_am_happy',
+            'look_ceiling', 'look_floor', 'move_over',  'no',  'pick_up',
+            'sit_down', 'which_one'] 
+
+            const resp_choices = ['comes closer',   
+            'goes in the<br>indicated direction',
+            'expresses joy for<br>other person',
+            'turns to look<br>at the ceiling', 
+            'bends to look<br>at the floor',
+            'moves over',
+            'retreats',
+            'picks up<br>something',
+            'sits down',
+            'takes an<br>object'] 
+        }
+
+        if (good_both)
+        {
+            var stimList = ['come_closer', 'go_overthere',
+             'look_ceiling', 'look_floor', 'pick_up'] 
+
+            const resp_choices = ['comes closer', 
+            'goes in the<br>indicated direction',
+            'turns to look<br>at the ceiling', 
+            'bends to look<br>at the floor',         
+            'picks object<br>up'] 
+        }
+
+
         const repeatCount = stimList.length-1; //12-1;
 
         stimList = stimList.flatMap(row => Array(repeatCount).fill(row));
         console.log('stimList',stimList)
 
-        // const resp_choices = ['come closer', 
-        //     'get down',    
-        //     'go over there',
-        //     'look at<br>the ceiling', 
-        //     'look at<br>the floor',        
-        //     'pick it up',    
-        //     'stand up',  
-        //     // 'stop'
-        // ] 
-        // const resp_choices_b = ['comes closer', 
-        const resp_choices = ['comes closer', 
-            'squats down',  
-            'goes in the<br>indicated direction',
-            'turns to look<br>at the ceiling', 
-            'bends to look<br>at the floor',         
-            'picks object<br>up',   
-            'stands up',  
-            // 'stops walking',         
-        ] 
 
         const resp_choices_alltrials = [];
         // Iterate over each choice
@@ -529,17 +557,32 @@
                     // const NnoiseDots = NnoiseDotsAll[jj];
                     const NnoiseDots = 1 // when developing code
 
-                    const twosexes = ['M', 'F'];
-                    const sex = twosexes[Math.floor(Math.random() * twosexes.length)];
+                    if (good_both) {
+                        const twosexes = ['M', 'F'];
+                        const sex = twosexes[Math.floor(Math.random() * twosexes.length)];
 
-                    // let vid_name = 'come_closer_F'; //'look_ceiling_F';
-                    if (Math.random() < 0.5) {
+                        // let vid_name = 'come_closer_F'; //'look_ceiling_F';
+                        if (Math.random() < 0.5) {
+                            curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
+                        }
+                        else {
+                            curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_B_LRswapped.txt`, `${stimAll[trialSeq[jj]]}_${sex}_A_LRswapped.txt`];//stimAll[jj];
+                        }
+                        console.log('curr_stim',curr_stim)
+                    }
+
+                    if (good_male) {
+                        const sex = 'M'
                         curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
+                        console.log('curr_stim',curr_stim)
                     }
-                    else {
-                        curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_B_LRswapped.txt`, `${stimAll[trialSeq[jj]]}_${sex}_A_LRswapped.txt`];//stimAll[jj];
+
+                    if (good_female) {
+                        const sex = 'F'
+                        curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
+                        console.log('curr_stim',curr_stim)
                     }
-                    console.log('curr_stim',curr_stim)
+                    
                     // const stimFileA = `stims/${vid_name}_A.txt`;
                     // const stimFileB = `stims/${vid_name}_B.txt`;
                     const stimFileA = `stims/${curr_stim[0]}`;
