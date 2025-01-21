@@ -155,14 +155,16 @@
         const good_female = true; // only one of these should be true
         const good_male = false;
         const good_both = false;
-        
+        var resp_choices;
+
         if (good_female)
         {
+            console.log('here')
             var stimList = ['come_closer', 'get_down',  'go_overthere',
              'I_am_angry',  'I_am_happy', 'imitate_me', 'look_ceiling', 'look_floor', 
              'pick_up',      'put_down',  'stand_up'] 
 
-            const resp_choices = ['come closer', 'get down', 'go over there',
+            resp_choices = ['come closer', 'get down', 'go over there',
             'I am angry', 'I am happy', 'imitate me', 'look at<br>the ceiling','look at<br>the floor',        
             'pick it up', 'put it down', 'stand up'] 
         }
@@ -173,7 +175,7 @@
             'look_ceiling', 'look_floor', 'move_over',  'no',  'pick_up',
             'sit_down', 'which_one'] 
 
-            const resp_choices = ['come closer', 'go over there','I am happy', 
+            resp_choices = ['come closer', 'go over there','I am happy', 
             'look at<br>the ceiling','look at<br>the floor', 'move over', 'no!', 'pick it up',
             'sit down', 'stand up'] 
         }
@@ -183,7 +185,7 @@
             var stimList = ['come_closer', 'go_overthere',
              'look_ceiling', 'look_floor', 'pick_up'] 
 
-            const resp_choices = ['come closer', 'go over there',
+            resp_choices = ['come closer', 'go over there',
             'look at<br>the ceiling','look at<br>the floor', 'pick it up'] 
         }
 
