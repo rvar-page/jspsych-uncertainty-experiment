@@ -588,13 +588,368 @@
         }
         timeline.push(introPage)
 
+        dotTrialDemo = {
+            type:  jsPsychHtmlKeyboardResponse,
+            stimulus: function () {
+                return `<div id="dot-container" style="position: relative; width: 40vw; height: 70vh;"></div>`;
+            },
+            choices: 'NO_KEYS',
+            on_load: async function () {
+
+                // for each trial, first read the stim file, shift and scale values, concat across agents etc. (only stim)
+                // stim stuff begins
+                const NnoiseDots = 1 // when developing code
+                let demoStim = 'this_tall'
+
+                if (good_both) {
+                    const twosexes = ['M', 'F'];
+                    const sex = twosexes[Math.floor(Math.random() * twosexes.length)];
+
+                    if (Math.random() < 0.5) {
+                        curr_stim = [`${demoStim}_${sex}_A.txt`, `${demoStim}_${sex}_B.txt`];//stimAll[jj];
+                    }
+                    else {
+                        curr_stim = [`${demoStim}_${sex}_B_LRswapped.txt`, `${demoStim}_${sex}_A_LRswapped.txt`];//stimAll[jj];
+                    }
+                    console.log('curr_stim',curr_stim)
+                }
+
+                if (good_male) {
+                    const sex = 'M'
+                    curr_stim = [`${demoStim}_${sex}_A.txt`, `${demoStim}_${sex}_B.txt`];//stimAll[jj];
+                    console.log('curr_stim',curr_stim)
+                }
+
+                if (good_female) {
+                    const sex = 'F'
+                    curr_stim = [`${demoStim}_${sex}_A.txt`, `${demoStim}_${sex}_B.txt`];//stimAll[jj];
+                    console.log('curr_stim',curr_stim)
+                }
+                const stimFileA = `stims/${curr_stim[0]}`;
+                const stimFileB = `stims/${curr_stim[1]}`;
+
+                console.log("File path for A:", stimFileA);
+                console.log("File path for B:", stimFileB);
+
+
+                let dataA = await fetch(`./${stimFileA}`); //await fetch('./come_closer_F_A.txt');
+                let dataB = await fetch(`./${stimFileB}`); //await fetch('./come_closer_F_A.txt');
+                
+                textA = await dataA.text();
+                textB = await dataB.text();
+
+                console.log('dataA:',dataA,'dataB:',dataB)
+
+                const linesA = textA.trim().split('\n');// Split the data into lines and skip the first line (header)
+                const linesB = textB.trim().split('\n');// Split the data into lines and skip the first line (header)
+                
+                // Handle header if i = 0
+                const headerA = linesA[0]; // Always take the first line as the header
+                const headerB = linesB[0]; // Always take the first line as the header
+                console.log('headerA',headerA)
+                const totFrames = headerA.match(/frames\s*=\s*(\d+)/)[1]; // tot frames is useful to reshape the array
+                console.log('totFrames',totFrames)
+                const bodyA = linesA.slice(1);
+                const bodyB = linesB.slice(1);
+                const columnsA = bodyA.map(line => {
+                    const parts = line.trim().split(/\s+/); // Split line by whitespace
+                    return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
+                });
+                const columnsB = bodyB.map(line => {
+                    const parts = line.trim().split(/\s+/); // Split line by whitespace
+                    return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
+                });
+                
+                // Separate columns
+                ax = columnsA.map(row => row[0]); // Extract first column
+                az = columnsA.map(row => row[1]); // Extract second column
+                
+                bx = columnsB.map(row => row[0]); // Extract first column
+                bz = columnsB.map(row => row[1]); // Extract second column
+                
+                /* shift and scale! */
+                let shift=50;
+                let scale=20;
+                // Find the minimum and maximum values
+                let min = Math.min(...ax);
+                let max = Math.max(...ax);
+                // Center and normalize the array
+                ax = ax.map(num => (num - min) / (max - min));
+                ax = ax.map(num => num * scale + shift);
+                
+                min = Math.min(...ax);
+                max = Math.max(...ax);
+                
+                shift=30//-20;
+                // Find the minimum and maximum values
+                min = Math.min(...bx);
+                max = Math.max(...bx);
+                bx = bx.map(num => (num - min) / (max - min));
+                bx = bx.map(num => num * scale + shift);
+                
+                min = Math.min(...bx);
+                max = Math.max(...bx);
+                
+                shift=20//-30; // same shift and scale for both 
+                scale=60;
+                // vertical
+                // Find the minimum and maximum values
+                min = Math.min(...az);
+                max = Math.max(...az);
+                // Center and normalize the array
+                az = az.map(num => (num - min) / (max - min));
+                az = az.map(num => num * scale + shift);
+
+                min = Math.min(...az);
+                max = Math.max(...az);
+                
+                // // Find the minimum and maximum values
+                min = Math.min(...bz);
+                max = Math.max(...bz);
+                // Center and normalize the array
+                bz = bz.map(num => (num - min) / (max - min));
+                bz = bz.map(num => num * scale + shift);
+
+                min = Math.min(...bz);
+                max = Math.max(...bz);
+                
+                let rows = totFrames;
+                let cols = 13;
+                ax = Array.from({ length: rows }, (_, i) => 
+                        ax.slice(i * cols, (i + 1) * cols)
+                );
+                az = Array.from({ length: rows }, (_, i) => 
+                        az.slice(i * cols, (i + 1) * cols)
+                );
+                
+                bx = Array.from({ length: rows }, (_, i) => 
+                        bx.slice(i * cols, (i + 1) * cols)
+                );
+                bz = Array.from({ length: rows }, (_, i) => 
+                        bz.slice(i * cols, (i + 1) * cols)
+                );
+                
+                let stimx = [];
+                let stimz = [];
+                ax_bx = ax.map((row, i) => row.concat(bx[i]));  //ax.concat(bx);
+                az_bz = az.map((row, i) => row.concat(bz[i]));  //ax.concat(bx);
+                min = Math.min(...ax_bx.flat());
+                max = Math.max(...ax_bx.flat());
+                 min = Math.min(...az_bz.flat());
+                max = Math.max(...az_bz.flat());
+                // end of stim stuff
+
+                // start of noise stuff
+
+                NdotsToShowNoise = NnoiseDots; 
+                setBoundsNoise = linspace(0,NdotsToShowNoise,dotDur+1) // start and stop of each quarter.
+                setBoundsNoise = setBoundsNoise.map(num => Math.ceil(num));
+                
+                const possCoordsNoisex = transpose(ax_bx);
+                const possCoordsNoisez = transpose(az_bz);
+                
+                // Initialize arrays (which are later combined to generate noise) with 0
+                let offsetx = Array.from({ length: NnoiseDots }, () =>
+                Array(Nframes).fill(0)
+                );
+                let offsetz = Array.from({ length: NnoiseDots }, () =>
+                Array(Nframes).fill(0)
+                );
+                let timeWindow = Array.from({ length: NnoiseDots }, () =>
+                Array(Nframes).fill(0)
+                );
+                let swapXZ = Array.from({ length: NnoiseDots }, () =>
+                Array(Nframes).fill(0)
+                );
+                let flipX = Array.from({ length: NnoiseDots }, () =>
+                Array(Nframes).fill(1)
+                );
+                let flipZ = Array.from({ length: NnoiseDots }, () =>
+                Array(Nframes).fill(1)
+                );
+                console.log('offsetx[0][0]:',offsetx[0][0]) // sanity check. should be 0
+
+                // Initialize `sel` as a 2D array with NnoiseDots rows and (Nframes + Nsets) columns, filled with NaN
+                let sel = Array.from({ length: NnoiseDots }, () => 
+                    Array(Nframes + Nsets).fill(NaN)
+                );
+                // Select and transform dots
+                let f = 0; // Frame counter
+
+                while (f <= Nframes + Nsets) { // repmat not working!!!!!
+                    for (let s = 0; s < Nsets; s++) { // for each set of NnoiseDots/4 dots
+                        const whichDots = Array.from(
+                        { length: setBoundsNoise[s + 1] - setBoundsNoise[s] },
+                        (_, i) => setBoundsNoise[s] + i
+                        ); // should be something like 0-12, 12-24 etc
+                        const range = Array.from({ length: Ndots }, (_, i) => i); // 1:Ndots (1:26) --> inds from which to select stimuli
+                        let sampled = sampleFrom(Math.ceil(NnoiseDots/dotDur), range);  // sample 16 dots
+                        // edit a quarter of dots
+                        samp = -1;
+                        whichDots.forEach((dot) => { // for each of the 12 dots (48 noisedots version). e.g. dot goes from 36 to 47
+                            samp++;
+                            // assign temporary values to each dot within the set
+                            main_dot_ind = sampled[samp] //selTemp[dot]; // sel has the dot number (wrt the main stim set) 
+                            // for each of the 48 dots and Nframes+4 frames
+                            offsetxTemp_ = (Math.random() - 0.5) * noiseSpread;
+                            offsetzTemp_ = (Math.random() - 0.5) * noiseSpread; 
+                            timeWindowTemp_ = Math.floor(Math.random() * (Nframes - 3));
+                            swapXZTemp_ =  Math.round(Math.random());
+                            flipXTemp_ = Math.random() < 0.5 ? -1 : 1; 
+                            flipZTemp_ = Math.random() < 0.5 ? -1 : 1; 
+
+                            for (let ind = 0; ind < 4; ind++){ // repmat in matlab
+                                sel[dot][f+ind] = main_dot_ind
+                                offsetx[dot][f+ind] = offsetxTemp_ //offsetxTemp[dot]; // Random x-offset
+                                offsetz[dot][f+ind] = offsetzTemp_ //offsetzTemp[dot]; // Random z-offset
+                                timeWindow[dot][f+ind] = timeWindowTemp_ + ind; //timeWindowTemp[dot]+ind;
+                                swapXZ[dot][f+ind] = swapXZTemp_; // swapXZTemp[dot];
+                                flipX[dot][f+ind] = flipXTemp_; //flipXTemp[dot];
+                                flipZ[dot][f+ind] = flipZTemp_; //flipZTemp[dot];
+                            }
+                        });
+                        f++;
+                    }
+                }
+                sel = sel.map(row => row.slice(Nsets,Nframes+Nsets));
+                offsetx = offsetx.map(row => row.slice(Nsets,Nframes+Nsets));
+                offsetz = offsetz.map(row => row.slice(Nsets,Nframes+Nsets));
+
+                let noisex = Array.from({ length: Nframes }, () =>
+                Array(NnoiseDots).fill(0)
+                );
+                let noisez = Array.from({ length: Nframes }, () =>
+                Array(NnoiseDots).fill(0)
+                );
+                
+                for (let f = 0; f < Nframes; f++) {
+                    for (let d = 0; d < NnoiseDots; d++) {
+
+                        if (swapXZ[d][f]) 
+                        {
+                            // Perform coordinate swap and offset adjustment
+                            noisex[f][d] =
+                                flipX[d][f] *
+                                possCoordsNoisez[sel[d][f]][timeWindow[d][f]] +
+                                offsetx[d][timeWindow[d][f]]; // offsetx[sel[d][f]][timeWindow[d][f]];  just need 'd' here. E.g if the dot is 26 in the actual dot array, for the offset, it' still a value between 1 and Nnoisedots
+                            noisez[f][d] = 
+                                flipZ[d][f] *
+                                possCoordsNoisex[sel[d][f]][timeWindow[d][f]] +
+                                offsetz[d][timeWindow[d][f]]; // offsetz[sel[d][f]][timeWindow[d][f]];
+                        } 
+                        else 
+                        {
+                            // Standard coordinate adjustment
+                            noisex[f][d] =
+                                flipX[d][f] *
+                                possCoordsNoisex[sel[d][f]][timeWindow[d][f]] +
+                                offsetx[d][timeWindow[d][f]]; //offsetx[sel[d][f]][timeWindow[d][f]];
+                            noisez[f][d] =
+                                flipZ[d][f] *
+                                possCoordsNoisez[sel[d][f]][timeWindow[d][f]] +
+                                offsetz[d][timeWindow[d][f]]; // //offsetz[sel[d][f]][timeWindow[d][f]];
+                        }
+                    }
+                }
+                console.log('noisex',noisex)
+
+                /* shift and scale noise!! */
+                shift=0;
+                scale=100;
+                // Find the minimum and maximum values
+                min = Math.min(...noisex.flat());
+                max = Math.max(...noisex.flat());
+                console.log('before: noisex: min', min,',max', max) // there is a bug already before!!
+                // Center and normalize the array
+                noisex = noisex.map(row => row.map(num => (num - min) / (max - min)) ); //noisex.map(num => (num - min) / (max - min));
+                noisex = noisex.map(row => row.map(num => num * scale + shift));
+                min = Math.min(...noisex.flat());
+                max = Math.max(...noisex.flat());
+                console.log('noisex after : min', min,',max', max)
+                
+
+                shift=0//-30; // same shift and scale for both 
+                scale=100 //100;
+                // vertical
+                // Find the minimum and maximum values
+                min = Math.min(...noisez.flat());
+                max = Math.max(...noisez.flat());
+                
+                // Center and normalize the array
+                noisez = noisez.map(row => row.map(num => (num - min) / (max - min)));
+                noisez = noisez.map(row => row.map(num => num * scale + shift));
+
+                min = Math.min(...noisez.flat());
+                max = Math.max(...noisez.flat());
+                // end of noise stuff
+
+                for (let f = 0; f < Nframes; f++) {
+                    stimx.push(
+                        selStim[f].map(index => {
+                            if (ax_bx[f][index - 1] === undefined) {
+                                console.error(`Undefined in stimx at frame ${f}, index ${index - 1}`);
+                            }
+                            return ax_bx[f][index - 1];
+                        })
+                    );
+
+                    stimz.push(
+                        selStim[f].map(index => {
+                            if (az_bz[f][index - 1] === undefined) {
+                                console.error(`Undefined in stimz at frame ${f}, index ${index - 1}`);
+                            }
+                            return az_bz[f][index - 1];
+                        })
+                    );
+                }
+                min = Math.min(...stimx.flat());
+                max = Math.max(...stimx.flat());
+                console.log('stimx: min', min,',max', max)
+                
+                min = Math.min(...stimz.flat());
+                max = Math.max(...stimz.flat());
+                console.log('stimz: min', min,',max', max)
+
+                min = Math.min(...noisex.flat());
+                max = Math.max(...noisez.flat());
+                console.log('noisex: min', min,',max', max)
+
+                min = Math.min(...noisex.flat());
+                max = Math.max(...noisez.flat());
+                console.log('noisez: min', min,',max', max)
+
+                const container = document.getElementById("dot-container");
+                if (container) {
+                    container.replaceWith(createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, Nframes, NstimDots));
+                } else {
+                    console.error("Dot container not found!");
+                }
+            },
+            trial_duration: 3200 // End trial after 1 second (10 sets * .1 seconds)
+        };
+        timeline.push(dotTrialDemo);
+
+        after_demo_stim = {
+                type: jsPsychSurveyHtmlForm,
+                html: '<p style="text-align: center; width: 400px"><br>If you did not see two people moving in the previous page, please quit this study right now.YOU MAY NOT BE ABLE TO SUBMIT THIS STUDY!!<br><br>',
+                on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        }
+        timeline.push(after_demo_stim)
+
+
         respPageDemo = {
         type: jsPsychHtmlSliderResponse,
             // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
             // stimulus: '<p style="text-align: center;">Indicate your response!</p>',
             stimulus: '<p style="text-align: center; width: 600px">After each clip, you will see a response page with a slider like this. Move the slider to indicate what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure<br><br>Person 2 (responder) had: </p>',
             // choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
-            labels: ['reaction 1<br>(e.g., gives<br>something<br>to the other<br>person)', 'reaction 2<br>(e.g., sits down)'],
+            labels: ['reaction 1<br>(e.g., indicates<br>that someone<br>is taller', 'reaction 2<br>(e.g., sits down)'],
             // labels: ['action 1', 'action 2'],
             prompt: " ",
             // slider_start: 50,
@@ -630,6 +985,19 @@
             },
         };
         timeline.push(respPageDemo)
+
+        main_study_intro = {
+                type: jsPsychSurveyHtmlForm,
+                html: '<p style="text-align: center; width: 600px"><br>Main study begins.<br>Keep your eyes on the screen till the next break!.<br><br><br>',
+                on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        }
+        timeline.push(main_study_intro)
 
         let curr_stim;
         // for (let jj = 1; jj<Ntrials+1; jj++) {
@@ -1125,7 +1493,6 @@
 
                 timeline.push(breakPage)
             }
-            break;
         } 
 
 
