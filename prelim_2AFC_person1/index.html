@@ -51,7 +51,18 @@
             align-items: center;
             height: 100vh;
         }
-       
+
+        body {
+            font-size: 24px; /* Adjust the size as needed */
+        }
+           /* Target jsPsych-specific elements for finer control */
+        .jspsych-content, .jspsych-display-element {
+            font-size: 24px; /* Adjust font size for jsPsych content */
+        }
+
+        .jspsych-btn {
+             font-size: 24px; /* Adjust button font size */
+         }
     </style>
 </head>
 
@@ -83,35 +94,6 @@
         // Add the CSS to the document head and run the trial
         document.head.insertAdjacentHTML("beforeend", centerStyle);
 
-        // Add a save data function
-        function uploadDataToSciebo(data) {
-        // Your Sciebo upload link
-        // const uploadLink = "https://uni-bonn.sciebo.de/s/YOUR_UPLOAD_ID";
-        const uploadLink = 'https://uni-bonn.sciebo.de/s/I20gjbp8BNmkjVO';
-        const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-
-
-        // Use the Fetch API to send data
-        fetch(proxyUrl + uploadLink, {
-            method: "POST",
-            body: new Blob([data], { type: "application/json" }), // Send as JSON file
-            headers: {
-            "Content-Type": "application/json", // Specify JSON content
-            },
-        })
-            .then((response) => {
-            if (response.ok) {
-                console.log("Data uploaded successfully!");
-            } else {
-                console.error("Upload failed:", response.statusText);
-            }
-            })
-            .catch((error) => {
-            console.error("Error uploading data:", error);
-            });
-        }
-
-        // BUG: FIRST DOT AT THE TOP LEFT!!
         const jsPsych = initJsPsych({
             // show_progress_bar: true,
             on_finish: function() 
@@ -123,22 +105,14 @@
 
             // const experimentData = jsPsych.data.get().values();
 
-            // Upload the data to Sciebo
-            // uploadToSciebo(experimentData);
 
             }
         });
 
         console.log('jsPsych initialized');
 
-        // at the start, set the stimuli for a trial
-        
         // Set parameters
         const dotDur = 4; // in frames, 133ms close to 120ms
-        // const Nframes = [111,83,150,115,245,214,150,313,120,134,210,110,114,169,253,130,94,75,178,265];// 114 //100; // hardcoded for 3.3s duration -- fix this acc to videos!! for _M_A_
-        // const Nframes = [108,108,123,145,230,139,100,220,114,100,151,140,180,138,180,132,100,82,147,240]; // for _F_A
-        
-        // const Nframes = [108,108,145,114,100,138,100,82]; // for _F_A
         const NdotsPerActor = 13;
         const Ndots = NdotsPerActor * 2;
         
@@ -160,13 +134,21 @@
         if (good_female)
         {
             console.log('here')
+            // var stimList = ['come_closer', 'get_down',  'go_overthere',
+            //  'I_am_angry',  'I_am_happy', 'imitate_me', 'look_ceiling', 'look_floor', 
+            //  'pick_up',      'put_down',  'stand_up'] 
+
+            // resp_choices = ['come closer', 'get down', 'go over there',
+            // 'I am angry', 'I am happy', 'imitate me', 'look at<br>the ceiling','look at<br>the floor',        
+            // 'pick it up', 'put it down', 'stand up'] 
+
             var stimList = ['come_closer', 'get_down',  'go_overthere',
-             'I_am_angry',  'I_am_happy', 'imitate_me', 'look_ceiling', 'look_floor', 
-             'pick_up',      'put_down',  'stand_up'] 
+             'I_am_angry',  'I_am_happy', 'look_ceiling', 'look_floor', 
+             'pick_up',     'stand_up'] 
 
             resp_choices = ['come closer', 'get down', 'go over there',
-            'I am angry', 'I am happy', 'imitate me', 'look at<br>the ceiling','look at<br>the floor',        
-            'pick it up', 'put it down', 'stand up'] 
+            'I am angry', 'I am happy', 'look at<br>the ceiling','look at<br>the floor',        
+            'pick it up', 'stand up']
         }
 
         if (good_male)
@@ -449,12 +431,6 @@
             return container;
         }
 
-
-
-        async function test(){
-            console.log('test')
-        }
-
         function getDimensions(array) {
             const nrows_func = array.length; // Number of rows
             console.log('in func',nrows_func)
@@ -491,21 +467,46 @@
             document.body.removeChild(link); // Remove the <a> after download
         }
 
-
-        // let test1 = 0;
-
         let dotTrial,respPage, confPage,start_time_conf,breakPage;
 
         let timeline = [];
 
-
+        // Prolific Id
+        timeline.push({
+            type: jsPsychSurveyHtmlForm,
+            preamble: '<p>Please enter your <strong>24-character</strong> Prolific ID here<br>(If piloting, please enter your name or initials)</p>',
+            // html: '<p align="center"> <input id="prolific_ID_ID_start" class="textbox" type="text" size="50%" height="40px" align="center" name="prolific_ID_name_start" required /> <br></p>',
+            html: `
+                <p align="center"> 
+                    <input id="prolific_ID_start" 
+                        class="textbox" 
+                        type="text" 
+                        style="width: 70%; height: 20px; font-size: 24px; padding: 5px;" 
+                        name="prolific_ID_name_start" 
+                        required /> 
+                    <br>
+                </p>
+            `,
+            on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            },
+            on_finish: function(data) {
+                const formData = jsPsych.data.getLastTrialData().values()[0].response['prolific_ID_name_start'];
+                console.log('Form Data:', formData); // Check collected data
+                data.prolific_id = formData || ''; // Save the Prolific ID
+            }
+        });
 
         introPage = {
                 type: jsPsychSurveyHtmlForm,
                 // stimulus:'<div class="center-stimulus"> Welcome!</div>',
                 // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
                 // html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe the social interaction best.<br><br>',
-                html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale <b>which of the two cues describe what the person who initiated the interaction (person 1)</b> may have said.<br><br>',
+                html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale <b>which of the two cues describe what the person who initiated the interaction (person 1)</b> may have said.<br><br>There are no right or wrong answers, so use your best instincts!<br><br>',
                
                 on_load: function() {
                 const buttons = document.querySelectorAll('.jspsych-btn');
@@ -516,6 +517,50 @@
             }
         }
         timeline.push(introPage)
+
+        respPageDemo = {
+        type: jsPsychHtmlSliderResponse,
+            // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
+            // stimulus: '<p style="text-align: center;">Indicate your response!</p>',
+            stimulus: '<p style="text-align: center; width: 600px">After each clip, you will see a response page with a slider like this. Move the slider to indicate what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure<br><br>Person 1 (initiator) said: </p>',
+            // choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
+            labels: ['action 1<br>(e.g., give it<br>to me)', 'action 2<br>(e.g., sit down)'],
+            // labels: ['action 1', 'action 2'],
+            prompt: " ",
+            // slider_start: 50,
+            slider_width: 400, // Width of the slider in pixels
+            require_movement: true,
+            // response_ends_trial:true,
+            on_load: function(){
+                jsPsych.data.get().addToLast({ nt: -1, stim: 'None', resp: ['action 1<br>(e.g., give it<br>to me)', 'action 2<br>(e.g., sit down)']});
+                const sliderContainer = document.querySelector('.jspsych-content');
+                sliderContainer.style.display = 'flex';
+                sliderContainer.style.justifyContent = 'center';
+                sliderContainer.style.alignItems = 'center';
+                sliderContainer.style.flexDirection = 'column';
+                sliderContainer.style.height = 'auto'; // Use 'auto' to prevent height from stretching
+                sliderContainer.style.maxHeight = '100vh'; // Prevent exceeding viewport height
+
+                // Adjust label font size and alignment
+                const labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
+                labels.forEach((label) => {
+                label.style.fontSize = '24px'; // Increase font size
+                label.style.marginTop = '10px'; // Add space below slider for labels
+                });
+
+                // Increase slider size
+                const slider = document.querySelector('input[type="range"]');
+                slider.style.height = '15px'; // Adjust slider height
+                slider.style.width = '100%'; // Ensure it spans the container width
+                slider.style.margin = '20px 0'; // Add spacing above and below the slider
+
+                // Add padding to avoid altering global layout
+                sliderContainer.style.padding = '20px';
+
+            },
+        };
+        timeline.push(respPageDemo)
+
 
         let curr_stim;
         // for (let jj = 1; jj<Ntrials+1; jj++) {
@@ -534,8 +579,10 @@
                     
                     // for each trial, first read the stim file, shift and scale values, concat across agents etc. (only stim)
                     // stim stuff begins
+                    console.log('stimTrialOrder',stimTrialOrder)
                     const indA = stimTrialOrder[jj - 1];
-                    const indB = indA;
+                    console.log('indA',indA)
+                    const indB = indA; 
                     // const NnoiseDots = NnoiseDotsAll[jj];
                     const NnoiseDots = 1 // when developing code
                     
@@ -955,11 +1002,13 @@
                 // choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
                 labels: resp_choices_alltrials[trialSeq[jj]],
                 prompt: " ",
+                
                 // slider_start: 50,
                 slider_width: 400, // Width of the slider in pixels
                 require_movement: true,
                 // response_ends_trial:true,
                 on_load: function(){
+
                     jsPsych.data.get().addToLast({ nt: jj+1, stim: stimAll[trialSeq[jj]], resp: resp_choices_alltrials[trialSeq[jj]]});
 
                     
@@ -974,7 +1023,7 @@
                     // Adjust label font size and alignment
                     const labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
                     labels.forEach((label) => {
-                    label.style.fontSize = '16px'; // Increase font size
+                    label.style.fontSize = '24px'; // Increase font size
                     label.style.marginTop = '10px'; // Add space below slider for labels
                     });
 
@@ -1011,9 +1060,36 @@
                 timeline.push(breakPage)
                 // break;
             }
-
+            break;
 
         } 
+
+        // feedback
+        timeline.push({
+            type: jsPsychSurveyHtmlForm,
+            preamble: '<p>Feedback if any:</p>',
+            // html: '<p align="center"> <input id="prolific_ID_ID_start" class="textbox" type="text" size="50%" height="40px" align="center" name="prolific_ID_name_start" required /> <br></p>',
+            html: `
+                <p align="center"> 
+                     <textarea id="feedback" 
+                        class="textbox" 
+                        style="width: 100%; height: 120px; font-size: 24px; padding: 5px; line-height: 1.5; text-align: left; vertical-align: top;" 
+                        name="feedback" 
+                        rows="5" 
+                        required
+                        autofocus>
+                    </textarea>
+                    <br>
+                </p>
+            `,
+            on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        });
 
         endPage = {
                 type: jsPsychSurveyHtmlForm,
@@ -1029,7 +1105,9 @@
                 });
                 const data = jsPsych.data.get().csv();
                 // Save the data as a CSV file
-                saveData("experiment_data_prelims.csv", data);
+                const prolificID = jsPsych.data.get().first(1).values()[0].prolific_id || 'Not available';
+                const flname = `experiment_data_prelim_person1v_${prolificID}.csv` 
+                saveData(flname, data);
 
                 // Send data to the upload link
                 // const experimentData = jsPsych.data.get().json();
