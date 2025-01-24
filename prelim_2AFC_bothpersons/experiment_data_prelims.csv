@@ -1,0 +1,4 @@
+"rt","response","trial_type","trial_index","time_elapsed","internal_node_id","stimulus","nt","stim","resp","slider_start"
+"1294","{}","survey-html-form","0","1294","0.0-0.0","","","","",""
+"null","null","html-keyboard-response","1","4497","0.0-1.0","<div id=""dot-container"" style=""position: relative; width: 40vw; height: 70vh;""></div>","1","look_ceiling","[""look at<br>the ceiling"",""get down""]",""
+"2847","60","html-slider-response","2","7346","0.0-2.0","<p style=""text-align: center;"">Person 1 (initiator) said: </p>","","","","50"
