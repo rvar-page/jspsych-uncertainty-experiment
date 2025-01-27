@@ -170,22 +170,6 @@
         
         if (good_female)
         {
-            // var stimList = ['come_closer', 'get_down',  'go_overthere',
-            //  'I_am_angry',  'I_am_happy', 'imitate_me', 'look_ceiling', 'look_floor', 
-            //  'pick_up',      'put_down',  'stand_up'] 
-
-            // resp_choices = ['comes closer', 
-            // 'squats down',
-            // 'goes in the<br>indicated direction',
-            // 'asks the other<br>person to<br>calm down',
-            // 'expresses joy for<br>other person',
-            // 'imitates the other',
-            // 'turns to look<br>at the ceiling', 
-            // 'bends to look<br>at the floor',         
-            // 'picks up<br>something',
-            // 'puts down<br>something',
-            // 'stands up'] 
-
             var stimList = ['come_closer', 'get_down',  'go_overthere',
              'I_am_angry',  'I_am_happy', 'look_ceiling', 'look_floor', 
              'pick_up',    'stand_up'] 
@@ -391,18 +375,10 @@
         function createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, numFrames = 100, numDots = 16) {
             // function to present the stimuli
             console.log('inside createStimulusClip function')
-            // console.log('getDimensions(stimx)',getDimensions(stimx))
-            // console.log('getDimensions(stimz)',getDimensions(stimz))
-            // console.log('getDimensions(noisex)',getDimensions(noisex))
-            // console.log('getDimensions(noisez)',getDimensions(noisez))
-            // console.log('Check stimx for undefined values:', stimx.some(row => row.some(val => val === undefined)));
-            // console.log('Check stimz for undefined values:', stimz.some(row => row.some(val => val === undefined)));
-            // Create the dot container
+        // Create the dot container
             const container = document.createElement("div");
             container.id = "dot-container";
             container.style.position = "relative";
-            // container.style.width = "50vw";
-            // container.style.height = "50vh";
             container.style.overflow = "visible"; // Ensure dots stay inside container
 
             // Create a reusable dot array

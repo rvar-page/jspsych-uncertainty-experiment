@@ -73,6 +73,10 @@
             font-size: 24px;
             /* Adjust button font size */
         }
+
+        body, .jspsych-content, .jspsych-display-element, .jspsych-btn, .jspsych-html-slider-response-container span {
+                font-family: 'Arial', 'Helvetica', sans-serif;
+        }
     </style>
 </head>
 
@@ -133,7 +137,6 @@
         const good_female = true; // only one of these should be true
         const good_male = false;
         const good_both = false;
-        var resp_choices;
 
         if (good_female) {
             console.log('here')
@@ -192,18 +195,20 @@
                 'picks object<br>up']
         }
 
-        let nTrialPerBlock = 14; //14;
-        // randomization - block sequences ( 131313 / 313131 )
-        if (Math.random() < 0.5) {
-            var blockSeq = [1, 2, 1, 2, 1, 2, 1, 2]
-        } else {
-            var blockSeq = [2, 1, 2, 1, 2, 1, 2, 1]
-        }
 
+        var blockSeq;
+        if (Math.random() < 0.5) {
+            blockSeq = [1, 2, 1, 2, 1, 2, 1, 2];
+        } else {
+            blockSeq = [2, 1, 2, 1, 2, 1, 2, 1];
+        }
+        console.log('blockSeq',blockSeq)
         const repeatCount = stimList.length - 1; //12-1;
 
         stimList = stimList.flatMap(row => Array(repeatCount).fill(row));
         console.log('stimList', stimList)
+
+        let prompt;
 
         const resp_choices_alltrials_response1 = [];
         // Iterate over each choice
@@ -249,8 +254,6 @@
 
         // Scramble the series
         const trialSeq = shuffleArray(series); // to make sure stimulus and response sequences are from the same rows
-
-
         const Nstims = stimList.length;
         const Ntrials = stimList.length;//8;//8;
 
@@ -264,12 +267,7 @@
         ); // shuffled array with 64 trials specifying how much noise each trial should have
 
         const NtrialsPerStim = Math.round(Ntrials / stimList.length); // 64/8 = 16
-        // const stimAll = jsPsych.randomization.shuffle(
-        // stimList.flatMap(level => Array(NtrialsPerStim).fill(level))
         const stimAll = stimList;
-        // ); // shuffled array with 64 trials specifying which stimulus to present
-        // will contain repeated elements from the NoiseLevels array, where each element is repeated
-        // NtrialsPerNoiselevel times.
         console.log('stimAll', stimAll)
 
         console.log('NnoiseDotsAll:', NnoiseDotsAll)
@@ -290,8 +288,11 @@
         // Initialize arrays
         let selTemp = Array(NdotsToShow).fill(null);
         let selStim = [];
-        let f = 0;
-
+        let rows,cols,stimx,stimz,possCoordsNoisex,possCoordsNoisez,offsetx,offsetz,timeWindow,swapXZ,flipX,flipZ,sel,f,s,whichDots,range,sampled,ind,noisex,noisez,d,container,buttons;
+        let  dataA, dataB, linesA, linesB, headerA, headerB, textA, textB,indA, indB, parts, shift,scale,min,max,labels;
+        let totFrames,columnsA,columnsB;
+        
+        f = 0;
         // Helper function to sample from an array
         function sampleFrom(N, toChooseFrom) {
             // Ensure toChooseFrom is a flat array
@@ -373,22 +374,17 @@
         function createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, numFrames = 100, numDots = 16) {
             // function to present the stimuli
             console.log('inside createStimulusClip function')
-            // console.log('getDimensions(stimx)',getDimensions(stimx))
-            // console.log('getDimensions(stimz)',getDimensions(stimz))
-            // console.log('getDimensions(noisex)',getDimensions(noisex))
-            // console.log('getDimensions(noisez)',getDimensions(noisez))
-            // console.log('Check stimx for undefined values:', stimx.some(row => row.some(val => val === undefined)));
-            // console.log('Check stimz for undefined values:', stimz.some(row => row.some(val => val === undefined)));
             // Create the dot container
             const container = document.createElement("div");
             container.id = "dot-container";
             container.style.position = "relative";
-            // container.style.width = "50vw";
-            // container.style.height = "50vh";
             container.style.overflow = "visible"; // Ensure dots stay inside container
 
+            
             // Create a reusable dot array
             const dots = [];
+            // const container = document.querySelector("#dot-container");
+            // const dots = Array.from(container.children);
             for (let i = 0; i < numDots + NnoiseDots + 1; i++) {
                 // for (let i = 0; i < numDots; i++) {
                 const dot = document.createElement("div");
@@ -406,6 +402,11 @@
                 container.appendChild(dot);
                 dots.push(dot);
             }
+
+            // Update only positions
+            // dots.forEach((dot, i) => {
+            //     dot.style.transform = `translate(${noisex[currentFrame][i]}px, ${noisez[currentFrame][i]}px)`;
+            // });
 
             // Animation loop
             let currentFrame = 0;
@@ -435,30 +436,8 @@
                             console.error(`Undefined value in stimz: Frame ${currentFrame}, Dot ${i}`);
                             return '50%';
                         })();
-                    // if (currentFrame==0){
-                    //     console.log('i',i,'dots[i].style.left',dots[i].style.left,'dots[i].style.bottom',dots[i].style.bottom);
-                    // }
                 }
 
-                //present noisedots
-                // for (let i = 0; i < NnoiseDots; i++) {
-                //     iDots = i + numDots
-                //     dots[iDots].style.backgroundColor = 'black';// for debugging "black";
-                //     dots[iDots].style.left = noisex[currentFrame][i] !== undefined 
-                //         ? `${noisex[currentFrame][i]}%` 
-                //         : (() => {
-                //             console.error(`Undefined value in noisex: Frame ${currentFrame}, Dot ${i}`);
-                //             return '50%';
-                //         })();
-
-                //     dots[iDots].style.bottom = noisez[currentFrame][i] !== undefined 
-                //         ? `${noisez[currentFrame][i]}%` 
-                //         : (() => {
-                //             console.error(`Undefined value in noisez: Frame ${currentFrame}, Dot ${i}`);
-                //             return '50%';
-                //         })();
-                // }
-                // break
                 currentFrame++;
             }, 33); //, 100); // , 33);   ~30 fps
 
@@ -493,14 +472,6 @@
             return Array.from({ length: num }, (_, i) => start + i * step);
         }
 
-        // // Function to save data as a file
-        // function saveData(filename, data) {
-        //     const blob = new Blob([data], { type: "text/csv" });
-        //     const link = document.createElement("a");
-        //     link.href = window.URL.createObjectURL(blob);
-        //     link.download = filename;
-        //     link.click();
-        // }
         function saveData(filename, data) {
             const blob = new Blob([data], { type: "text/plain" }); // Create a Blob object with the data
             const link = document.createElement("a"); // Create an invisible <a> element
@@ -511,15 +482,13 @@
             document.body.removeChild(link); // Remove the <a> after download
         }
 
-        let dotTrial, respPage, confPage, start_time_conf, breakPage;
-
+        let dotTrial, respPage, confPage, start_time_conf,resp_choices;
         let timeline = [];
 
         // Prolific Id
         timeline.push({
             type: jsPsychSurveyHtmlForm,
             preamble: '<p>Please enter your <strong>24-character</strong> Prolific ID here<br>(If piloting, please enter your name or initials)</p>',
-            // html: '<p align="center"> <input id="prolific_ID_ID_start" class="textbox" type="text" size="50%" height="40px" align="center" name="prolific_ID_name_start" required /> <br></p>',
             html: `
                 <p align="center"> 
                     <input id="prolific_ID_start" 
@@ -547,11 +516,7 @@
 
         introPage = {
             type: jsPsychSurveyHtmlForm,
-            // stimulus:'<div class="center-stimulus"> Welcome!</div>',
-            // stimulus: '<p style="text-align: center;">Welcome to this study!<br>Here you will watch several short animations and answer questions about them.</p>',
-            // html: '<p style="text-align: center; width: 400px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale which of the two cues describe the social interaction best.<br><br>',
-            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch animations with moving dots that depict two interacting people as viewed from the side.<br><br>After each animation, you must rate on a continuous scale <b>which of the two cues describe what the person who initiated the interaction (person 1)</b> may have said.<br><br>There are no right or wrong answers, so use your best instincts!<br><br>',
-
+            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips that depict two interacting people as viewed from the side. In each clip, person 1 will initiate a social interaction and person 2 will react to it. <br><br>After each animation, you will be asked a question about either: <br>(1) the action of person 1 (the initiator) or <br>(2) the reaction of person 2 (the responder).<br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation.<br><br>',
             on_load: function () {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -562,18 +527,9 @@
         }
         timeline.push(introPage)
 
-        introPage2 = {
-            type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 400px">In the next page, you will see a simple demo consisting of moving dots that depict two interacting people as viewed from the side.<br> <br>',
-            on_load: function () {
-                const buttons = document.querySelectorAll('.jspsych-btn');
-                buttons.forEach(button => {
-                    button.style.display = 'block';
-                    button.style.margin = '0 auto';
-                });
-            }
-        }
-        timeline.push(introPage2)
+        const twosexes = ['M', 'F'];
+        let sex,stimFileA,stimFileB;
+        const NnoiseDots = 1 // when developing code
 
         dotTrialDemo = {
             type: jsPsychHtmlKeyboardResponse,
@@ -582,68 +538,51 @@
             },
             choices: 'NO_KEYS',
             on_load: async function () {
-
+                console.log('demo animation')
                 // for each trial, first read the stim file, shift and scale values, concat across agents etc. (only stim)
                 // stim stuff begins
-                const NnoiseDots = 1 // when developing code
                 let demoStim = 'this_tall'
+                if (good_both)   {sex = twosexes[Math.floor(Math.random() * twosexes.length)];}
+                if (good_male)   {sex = 'M';}
+                if (good_female) {sex = 'F';}
+                if (Math.random() < 0.5) {curr_stim = [`${demoStim}_${sex}_A.txt`,           `${demoStim}_${sex}_B.txt`]; }
+                else                     {curr_stim = [`${demoStim}_${sex}_B_LRswapped.txt`, `${demoStim}_${sex}_A_LRswapped.txt`];}
+                console.log('curr_stim', curr_stim)
+                // stimFileA = `stims/${curr_stim[0]}`;
+                // stimFileB = `stims/${curr_stim[1]}`;
 
-                if (good_both) {
-                    const twosexes = ['M', 'F'];
-                    const sex = twosexes[Math.floor(Math.random() * twosexes.length)];
+                stimFileA = `https://rvar-page.github.io/jspsych-uncertainty-experiment/part1/stims/${curr_stim[0]}`;
+                stimFileB = `https://rvar-page.github.io/jspsych-uncertainty-experiment/part1/stims/${curr_stim[1]}`;
 
-                    if (Math.random() < 0.5) {
-                        curr_stim = [`${demoStim}_${sex}_A.txt`, `${demoStim}_${sex}_B.txt`];//stimAll[jj];
-                    }
-                    else {
-                        curr_stim = [`${demoStim}_${sex}_B_LRswapped.txt`, `${demoStim}_${sex}_A_LRswapped.txt`];//stimAll[jj];
-                    }
-                    console.log('curr_stim', curr_stim)
-                }
-
-                if (good_male) {
-                    const sex = 'M'
-                    curr_stim = [`${demoStim}_${sex}_A.txt`, `${demoStim}_${sex}_B.txt`];//stimAll[jj];
-                    console.log('curr_stim', curr_stim)
-                }
-
-                if (good_female) {
-                    const sex = 'F'
-                    curr_stim = [`${demoStim}_${sex}_A.txt`, `${demoStim}_${sex}_B.txt`];//stimAll[jj];
-                    console.log('curr_stim', curr_stim)
-                }
-                const stimFileA = `stims/${curr_stim[0]}`;
-                const stimFileB = `stims/${curr_stim[1]}`;
 
                 console.log("File path for A:", stimFileA);
                 console.log("File path for B:", stimFileB);
 
-
-                let dataA = await fetch(`./${stimFileA}`); //await fetch('./come_closer_F_A.txt');
-                let dataB = await fetch(`./${stimFileB}`); //await fetch('./come_closer_F_A.txt');
+                dataA = await fetch(stimFileA); //await fetch('./come_closer_F_A.txt');
+                dataB = await fetch(stimFileB); //await fetch('./come_closer_F_A.txt');
 
                 textA = await dataA.text();
                 textB = await dataB.text();
 
-                console.log('dataA:', dataA, 'dataB:', dataB)
+                // console.log('dataA:', dataA, 'dataB:', dataB)
 
-                const linesA = textA.trim().split('\n');// Split the data into lines and skip the first line (header)
-                const linesB = textB.trim().split('\n');// Split the data into lines and skip the first line (header)
+                linesA = textA.trim().split('\n');// Split the data into lines and skip the first line (header)
+                linesB = textB.trim().split('\n');// Split the data into lines and skip the first line (header)
 
                 // Handle header if i = 0
-                const headerA = linesA[0]; // Always take the first line as the header
-                const headerB = linesB[0]; // Always take the first line as the header
+                headerA = linesA[0]; // Always take the first line as the header
+                headerB = linesB[0]; // Always take the first line as the header
                 console.log('headerA', headerA)
-                const totFrames = headerA.match(/frames\s*=\s*(\d+)/)[1]; // tot frames is useful to reshape the array
+                totFrames = headerA.match(/frames\s*=\s*(\d+)/)[1]; // tot frames is useful to reshape the array
                 console.log('totFrames', totFrames)
-                const bodyA = linesA.slice(1);
-                const bodyB = linesB.slice(1);
-                const columnsA = bodyA.map(line => {
-                    const parts = line.trim().split(/\s+/); // Split line by whitespace
+                bodyA = linesA.slice(1);
+                bodyB = linesB.slice(1);
+                columnsA = bodyA.map(line => {
+                    parts = line.trim().split(/\s+/); // Split line by whitespace
                     return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
                 });
                 const columnsB = bodyB.map(line => {
-                    const parts = line.trim().split(/\s+/); // Split line by whitespace
+                    parts = line.trim().split(/\s+/); // Split line by whitespace
                     return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
                 });
 
@@ -655,11 +594,11 @@
                 bz = columnsB.map(row => row[1]); // Extract second column
 
                 /* shift and scale! */
-                let shift = 50;
-                let scale = 20;
+                shift = 50;
+                scale = 20;
                 // Find the minimum and maximum values
-                let min = Math.min(...ax);
-                let max = Math.max(...ax);
+                min = Math.min(...ax);
+                max = Math.max(...ax);
                 // Center and normalize the array
                 ax = ax.map(num => (num - min) / (max - min));
                 ax = ax.map(num => num * scale + shift);
@@ -700,8 +639,8 @@
                 min = Math.min(...bz);
                 max = Math.max(...bz);
 
-                let rows = totFrames;
-                let cols = 13;
+                rows = totFrames;
+                cols = 13;
                 ax = Array.from({ length: rows }, (_, i) =>
                     ax.slice(i * cols, (i + 1) * cols)
                 );
@@ -716,8 +655,8 @@
                     bz.slice(i * cols, (i + 1) * cols)
                 );
 
-                let stimx = [];
-                let stimz = [];
+                stimx = [];
+                stimz = [];
                 ax_bx = ax.map((row, i) => row.concat(bx[i]));  //ax.concat(bx);
                 az_bz = az.map((row, i) => row.concat(bz[i]));  //ax.concat(bx);
                 min = Math.min(...ax_bx.flat());
@@ -732,45 +671,46 @@
                 setBoundsNoise = linspace(0, NdotsToShowNoise, dotDur + 1) // start and stop of each quarter.
                 setBoundsNoise = setBoundsNoise.map(num => Math.ceil(num));
 
-                const possCoordsNoisex = transpose(ax_bx);
-                const possCoordsNoisez = transpose(az_bz);
+                
+                possCoordsNoisex = transpose(ax_bx);
+                possCoordsNoisez = transpose(az_bz);
 
                 // Initialize arrays (which are later combined to generate noise) with 0
-                let offsetx = Array.from({ length: NnoiseDots }, () =>
+                offsetx = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes).fill(0)
                 );
-                let offsetz = Array.from({ length: NnoiseDots }, () =>
+                offsetz = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes).fill(0)
                 );
-                let timeWindow = Array.from({ length: NnoiseDots }, () =>
+                timeWindow = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes).fill(0)
                 );
-                let swapXZ = Array.from({ length: NnoiseDots }, () =>
+                swapXZ = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes).fill(0)
                 );
-                let flipX = Array.from({ length: NnoiseDots }, () =>
+                flipX = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes).fill(1)
                 );
-                let flipZ = Array.from({ length: NnoiseDots }, () =>
+                flipZ = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes).fill(1)
                 );
                 console.log('offsetx[0][0]:', offsetx[0][0]) // sanity check. should be 0
 
                 // Initialize `sel` as a 2D array with NnoiseDots rows and (Nframes + Nsets) columns, filled with NaN
-                let sel = Array.from({ length: NnoiseDots }, () =>
+                sel = Array.from({ length: NnoiseDots }, () =>
                     Array(Nframes + Nsets).fill(NaN)
                 );
                 // Select and transform dots
-                let f = 0; // Frame counter
-
+                f = 0; // Frame counter
+                
                 while (f <= Nframes + Nsets) { // repmat not working!!!!!
-                    for (let s = 0; s < Nsets; s++) { // for each set of NnoiseDots/4 dots
-                        const whichDots = Array.from(
+                    for (s = 0; s < Nsets; s++) { // for each set of NnoiseDots/4 dots
+                        whichDots = Array.from(
                             { length: setBoundsNoise[s + 1] - setBoundsNoise[s] },
                             (_, i) => setBoundsNoise[s] + i
                         ); // should be something like 0-12, 12-24 etc
-                        const range = Array.from({ length: Ndots }, (_, i) => i); // 1:Ndots (1:26) --> inds from which to select stimuli
-                        let sampled = sampleFrom(Math.ceil(NnoiseDots / dotDur), range);  // sample 16 dots
+                        range = Array.from({ length: Ndots }, (_, i) => i); // 1:Ndots (1:26) --> inds from which to select stimuli
+                        sampled = sampleFrom(Math.ceil(NnoiseDots / dotDur), range);  // sample 16 dots
                         // edit a quarter of dots
                         samp = -1;
                         whichDots.forEach((dot) => { // for each of the 12 dots (48 noisedots version). e.g. dot goes from 36 to 47
@@ -784,8 +724,8 @@
                             swapXZTemp_ = Math.round(Math.random());
                             flipXTemp_ = Math.random() < 0.5 ? -1 : 1;
                             flipZTemp_ = Math.random() < 0.5 ? -1 : 1;
-
-                            for (let ind = 0; ind < 4; ind++) { // repmat in matlab
+                            
+                            for (ind = 0; ind < 4; ind++) { // repmat in matlab
                                 sel[dot][f + ind] = main_dot_ind
                                 offsetx[dot][f + ind] = offsetxTemp_ //offsetxTemp[dot]; // Random x-offset
                                 offsetz[dot][f + ind] = offsetzTemp_ //offsetzTemp[dot]; // Random z-offset
@@ -802,15 +742,15 @@
                 offsetx = offsetx.map(row => row.slice(Nsets, Nframes + Nsets));
                 offsetz = offsetz.map(row => row.slice(Nsets, Nframes + Nsets));
 
-                let noisex = Array.from({ length: Nframes }, () =>
+                 noisex = Array.from({ length: Nframes }, () =>
                     Array(NnoiseDots).fill(0)
                 );
-                let noisez = Array.from({ length: Nframes }, () =>
+                noisez = Array.from({ length: Nframes }, () =>
                     Array(NnoiseDots).fill(0)
                 );
 
-                for (let f = 0; f < Nframes; f++) {
-                    for (let d = 0; d < NnoiseDots; d++) {
+                for (f = 0; f < Nframes; f++) {
+                    for (d = 0; d < NnoiseDots; d++) {
 
                         if (swapXZ[d][f]) {
                             // Perform coordinate swap and offset adjustment
@@ -836,7 +776,7 @@
                         }
                     }
                 }
-                console.log('noisex', noisex)
+                // console.log('noisex', noisex)
 
                 /* shift and scale noise!! */
                 shift = 0;
@@ -844,13 +784,13 @@
                 // Find the minimum and maximum values
                 min = Math.min(...noisex.flat());
                 max = Math.max(...noisex.flat());
-                console.log('before: noisex: min', min, ',max', max) // there is a bug already before!!
+                // console.log('before: noisex: min', min, ',max', max) // there is a bug already before!!
                 // Center and normalize the array
                 noisex = noisex.map(row => row.map(num => (num - min) / (max - min))); //noisex.map(num => (num - min) / (max - min));
                 noisex = noisex.map(row => row.map(num => num * scale + shift));
                 min = Math.min(...noisex.flat());
                 max = Math.max(...noisex.flat());
-                console.log('noisex after : min', min, ',max', max)
+                // console.log('noisex after : min', min, ',max', max)
 
 
                 shift = 0//-30; // same shift and scale for both 
@@ -868,7 +808,7 @@
                 max = Math.max(...noisez.flat());
                 // end of noise stuff
 
-                for (let f = 0; f < Nframes; f++) {
+                for (f = 0; f < Nframes; f++) {
                     stimx.push(
                         selStim[f].map(index => {
                             if (ax_bx[f][index - 1] === undefined) {
@@ -889,21 +829,21 @@
                 }
                 min = Math.min(...stimx.flat());
                 max = Math.max(...stimx.flat());
-                console.log('stimx: min', min, ',max', max)
+                // console.log('stimx: min', min, ',max', max)
 
                 min = Math.min(...stimz.flat());
                 max = Math.max(...stimz.flat());
-                console.log('stimz: min', min, ',max', max)
+                // console.log('stimz: min', min, ',max', max)
 
                 min = Math.min(...noisex.flat());
                 max = Math.max(...noisez.flat());
-                console.log('noisex: min', min, ',max', max)
+                // console.log('noisex: min', min, ',max', max)
 
                 min = Math.min(...noisex.flat());
                 max = Math.max(...noisez.flat());
-                console.log('noisez: min', min, ',max', max)
+                // console.log('noisez: min', min, ',max', max)                
 
-                const container = document.getElementById("dot-container");
+                container = document.getElementById("dot-container");
                 if (container) {
                     container.replaceWith(createStimulusClip(stimx, stimz, noisex, noisez, NnoiseDots, Nframes, NstimDots));
                 } else {
@@ -914,67 +854,213 @@
         };
         timeline.push(dotTrialDemo);
 
-        after_demo_stim = {
+        const respPageIntro = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: `
+            <div style="width: 600px; margin: auto; text-align: center; font-family: sans-serif; font-size: 24px;">
+                <p style="text-align: center; margin: 20px auto; max-width: 600px; line-height: 1.5;">
+                    These will be the 2 types of questions:
+                </p>
+
+                <!-- Slider 1 -->
+                <div style="margin-bottom: 40px; max-width: 600px; margin: auto;">
+                    <p style="text-align: center; margin-bottom: 10px;">
+                        <br>Person 1 (initiator) said:
+                    </p>
+                    <div style="position: relative; width: 400px; margin: auto;">
+                        <input type="range" id="slider1" min="0" max="100" value="50" step="1" 
+                        style="width: 100%; margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; position: absolute; top: 35px; width: 100%;">
+                            <span style="position: absolute; left: 0; transform: translateX(-50%);">action 1</span>
+                            <span style="position: absolute; right: 0; transform: translateX(50%);">action 2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slider 2 -->
+                <div style="margin-bottom: 40px; max-width: 600px; margin: auto;">
+                    <p style="text-align: center; margin-bottom: 10px;">
+                        <br>or<br><br>Person 2 (responder):
+                    </p>
+                    <div style="position: relative; width: 400px; margin: auto;">
+                        <input type="range" id="slider2" min="0" max="100" value="50" step="1" 
+                        style="width: 100%; margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; position: absolute; top: 35px; width: 100%;">
+                            <span style="position: absolute; left: 0; transform: translateX(-50%);">had<br>reaction 1</span>
+                            <span style="position: absolute; right: 0; transform: translateX(50%);">had<br>reaction 2</span>
+                        </div>
+                    </div>
+                    <p style="text-align: center; margin: 20px auto; max-width: 600px; line-height: 1.5;">
+                        <br><br>You should click  on the slider once to indicate which behaviour you just saw and how confident you feel about it. Click closer to an action/reaction if you feel confident about it, and further from the edges depending on your confidence.
+                    </p>
+                </div>
+            </div>`,
+            choices: ['Continue'],
+            on_load: function() {
+                const slider1 = document.getElementById('slider1');
+                const slider2 = document.getElementById('slider2');
+                const slider1Value = document.getElementById('slider1Value');
+                const slider2Value = document.getElementById('slider2Value');
+
+                slider1.oninput = () => {
+                slider1Value.textContent = `Value: ${slider1.value}`;
+                };
+                slider2.oninput = () => {
+                slider2Value.textContent = `Value: ${slider2.value}`;
+                };
+
+                buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            },
+            };
+        timeline.push(respPageIntro);
+
+        timeline.push({
             type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 400px"><br>If you did not see two people moving in the previous page, please quit this study right now.YOU MAY NOT BE ABLE TO SUBMIT THIS STUDY!!<br><br>',
+            html: '<p style="text-align: center; width: 400px"><br>Let us watch the animation again on the next page. Pay attention.<br><br>',
             on_load: function () {
-                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
                     button.style.display = 'block';
                     button.style.margin = '0 auto';
                 });
             }
-        }
-        timeline.push(after_demo_stim)
+        });
+        timeline.push(dotTrialDemo);
 
-        respPageDemo = {
+        if (Math.random() > 0.5) {
+            resp_page_choices_action = ['This tall?', 'Sit down'];
+        }else{
+            resp_page_choices_action = [ 'Sit down', 'This tall?']
+        }
+        let slider,sliderContainer;
+        respPageDemo1 = {
             type: jsPsychHtmlSliderResponse,
-            // stimulus: '<div class="center-stimulus"> Press a button!;</div>',
-            // stimulus: '<p style="text-align: center;">Indicate your response!</p>',
-            stimulus: '<p style="text-align: center; width: 600px">After each clip, you will see a response page with a slider like this. Move the slider to indicate what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure<br><br>Person 1 (initiator) said: </p>',
-            // choices: ['Look at<br>the ceiling', 'Look at<br>the floor'],
-            labels: ["action 1<br>(e.g., asks<br>about someone's<br>height", 'action 2<br>(e.g., sit down)'],
-            // labels: ['action 1', 'action 2'],
-            prompt: " ",
-            // slider_start: 50,
+            stimulus: '<p style="text-align: center; width: 600px">Click on the slider to indicate both what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure.<br><br>Person 1 (initiator) said: </p>',
+            labels: resp_page_choices_action,
+            prompt: '',
             slider_width: 400, // Width of the slider in pixels
             require_movement: true,
-            // response_ends_trial:true,
             on_load: function () {
-                jsPsych.data.get().addToLast({ nt: -1, stim: 'None', resp: ['action 1<br>(e.g., give it<br>to me)', 'action 2<br>(e.g., sit down)'] });
-                const sliderContainer = document.querySelector('.jspsych-content');
+                console.log('demo slider response 1')
+                jsPsych.data.get().addToLast({ nt: -1, stim: 'None', resp: resp_page_choices_action });
+
+                // Hide the continue button
+                const button = document.querySelector('.jspsych-btn');
+                // const button = document.querySelector('.jspsych-html-slider-response .jspsych-btn');
+                if (button) {
+                    button.style.display = 'none';
+                }
+
+                sliderContainer = document.querySelector('.jspsych-content');
                 sliderContainer.style.display = 'flex';
-                sliderContainer.style.justifyContent = 'center';
-                sliderContainer.style.alignItems = 'center';
                 sliderContainer.style.flexDirection = 'column';
-                sliderContainer.style.height = 'auto'; // Use 'auto' to prevent height from stretching
-                sliderContainer.style.maxHeight = '100vh'; // Prevent exceeding viewport height
+                sliderContainer.style.alignItems = 'center';
+                sliderContainer.style.textAlign = 'center';
+                sliderContainer.style.width = '100%'; // Ensure full width
+                sliderContainer.style.maxWidth = '600px'; // Limit max width for text
+                sliderContainer.style.margin = 'auto'; // Center horizontally
+                sliderContainer.style.padding = '10px';
 
                 // Adjust label font size and alignment
-                const labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
+                labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
                 labels.forEach((label) => {
                     label.style.fontSize = '24px'; // Increase font size
-                    label.style.marginTop = '10px'; // Add space below slider for labels
+                    label.style.marginTop = '5px'; // Add space below slider for labels
+                    label.style.width = 'calc(50% - 10px)'; // Ensure labels fit on either side of slider
+                    label.style.textAlign = 'center'; // Center text under slider
                 });
 
                 // Increase slider size
-                const slider = document.querySelector('input[type="range"]');
+                slider = document.querySelector('input[type="range"]');
                 slider.style.height = '15px'; // Adjust slider height
-                slider.style.width = '100%'; // Ensure it spans the container width
-                slider.style.margin = '20px 0'; // Add spacing above and below the slider
+                slider.style.width = '400px'; // Ensure it spans the container width
+                slider.style.margin = '5px 0'; // Add spacing above and below the slider
+                slider.style.padding = '0';
 
                 // Add padding to avoid altering global layout
-                sliderContainer.style.padding = '20px';
+                sliderContainer.style.padding = '10px';
 
+                // Add event listener to end the trial when slider value changes
+                slider.addEventListener('change', () => {
+                const response = slider.value;
+                    jsPsych.finishTrial({ slider_response: response });
+                });
             },
         };
-        timeline.push(respPageDemo)
+        timeline.push(respPageDemo1)
+
+        if (Math.random() > 0.5) {
+            resp_page_choices_reaction = ['indicates<br>that someone<br>is taller', 'sits down'];
+        }else{
+            resp_page_choices_reaction = ['sits down', 'indicates<br>that someone<br>is taller'];
+        }
+
+        respPageDemo2 = {
+            type: jsPsychHtmlSliderResponse,
+            stimulus: '<p style="text-align: center; width: 600px">Click on the slider to indicate both what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure.<br><br>Person 2 (responder): </p>',
+            labels: resp_page_choices_reaction,
+            prompt: '',
+            slider_width: 400, // Width of the slider in pixels
+            require_movement: true,
+            on_load: function () {
+                console.log('demo slider response 2')
+                jsPsych.data.get().addToLast({ nt: -1, stim: 'None', resp: resp_page_choices_reaction });
+
+                // Hide the continue button
+                const button = document.querySelector('.jspsych-btn');
+                // const button = document.querySelector('.jspsych-html-slider-response .jspsych-btn');
+                if (button) {
+                    button.style.display = 'none';
+                }
+
+                sliderContainer = document.querySelector('.jspsych-content');
+                sliderContainer.style.display = 'flex';
+                sliderContainer.style.flexDirection = 'column';
+                sliderContainer.style.alignItems = 'center';
+                sliderContainer.style.textAlign = 'center';
+                sliderContainer.style.width = '100%'; // Ensure full width
+                sliderContainer.style.maxWidth = '600px'; // Limit max width for text
+                sliderContainer.style.margin = 'auto'; // Center horizontally
+                sliderContainer.style.padding = '10px';
+
+                // Adjust label font size and alignment
+                labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
+                labels.forEach((label) => {
+                    label.style.fontSize = '24px'; // Increase font size
+                    label.style.marginTop = '5px'; // Add space below slider for labels
+                    label.style.width = 'calc(50% - 10px)'; // Ensure labels fit on either side of slider
+                    label.style.textAlign = 'center'; // Center text under slider
+                });
+
+                // Increase slider size
+                slider = document.querySelector('input[type="range"]');
+                slider.style.height = '15px'; // Adjust slider height
+                slider.style.width = '400px'; // Ensure it spans the container width
+                slider.style.margin = '5px 0'; // Add spacing above and below the slider
+                slider.style.padding = '0';
+
+                // Add padding to avoid altering global layout
+                sliderContainer.style.padding = '10px';
+
+                // Add event listener to end the trial when slider value changes
+                slider.addEventListener('change', () => {
+                const response = slider.value;
+                    jsPsych.finishTrial({ slider_response: response });
+                });
+            },
+        };
+        timeline.push(respPageDemo2)
 
         main_study_intro = {
             type: jsPsychSurveyHtmlForm,
             html: '<p style="text-align: center; width: 600px"><br>Main study begins.<br>Keep your eyes on the screen till the next break!.<br><br><br>',
             on_load: function () {
-                const buttons = document.querySelectorAll('.jspsych-btn');
+                console.log('main task intro')
+                buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
                     button.style.display = 'block';
                     button.style.margin = '0 auto';
@@ -983,42 +1069,51 @@
         }
         timeline.push(main_study_intro)
 
-        let curr_stim, resp_choices_block, runIntroPage;
-        for (let b = 0; b < blockSeq.length; b++) { // block loop
-            let blockType = blockSeq[b];
-            if (blockType == 1) {
-                resp_choices_block =  resp_choices_alltrials_response1
-                runIntroPage = {
+        let curr_stim, runIntroPage,b,jj_within_block;
+        
+
+        console.log(' blockSeq.length', blockSeq.length)
+
+        const Ntrialsperblock = Ntrials/blockSeq.length;
+        console.log('Ntrialsperblock:',Ntrialsperblock)
+
+        for (let b = 0; b < blockSeq.length; b++) { // block loop 
+            // let currentBlock = blockSeq[b];
+            // console.log('currentBlock',currentBlock)
+            // if (currentBlock == 1) {
+            if (blockSeq[b] == 1) {
+                timeline.push({
                         type: jsPsychSurveyHtmlForm,
-                        html: 'Block'+(b+1)+"/8<br>Identify <br>person 1's<br> action.",
+                        html: '<p style="text-align: center; width: 600px"><br>Block'+(b+1)+"/8.<br>Identify <b>person 1's</b> action.<br><br>",
                         on_load: function () {
-                            const buttons = document.querySelectorAll('.jspsych-btn');
+                            buttons = document.querySelectorAll('.jspsych-btn');
                             buttons.forEach(button => {
                                 button.style.display = 'block';
                                 button.style.margin = '0 auto';
                             });
                         }
-                    };
-            } 
-            if (blockType == 2) {
-                resp_choices_block =  resp_choices_alltrials_response2
-                runIntroPage = {
-                        type: jsPsychSurveyHtmlForm,
-                        html: 'Block'+(b+1)+"/8<br>Identify <br>person 2's<br> action.",
-                        on_load: function () {
-                            const buttons = document.querySelectorAll('.jspsych-btn');
-                            buttons.forEach(button => {
-                                button.style.display = 'block';
-                                button.style.margin = '0 auto';
-                            });
-                        }
-                    };
+                    });
             }
-            timeline.push(runIntroPage)
+            if (blockSeq[b] == 2) { 
+                timeline.push({
+                        type: jsPsychSurveyHtmlForm,
+                        html: '<p style="text-align: center; width: 600px"><br>Block'+(b+1)+"/8.<br>Identify <b>person 2's</b> reaction.<br><br>",
+                        on_load: function () {
+                            buttons = document.querySelectorAll('.jspsych-btn');
+                            buttons.forEach(button => {
+                                button.style.display = 'block';
+                                button.style.margin = '0 auto';
+                            });
+                        }
+                    });
+            }
+            // (runIntroPage)
+
+            const NnoiseDots = 1 // when developing code
 
             // for (let jj = 0; jj < Ntrials; jj++) {
-            for (let jj_within_block = 0; jj_within_block < 9; jj++) {
-                jj = 9*b+jj_within_block;
+            for (let jj_within_block = 0; jj_within_block < Ntrialsperblock; jj_within_block++) {
+               
                 dotTrial = {
                     type: jsPsychHtmlKeyboardResponse,
                     stimulus: function () {
@@ -1026,94 +1121,61 @@
                     },
                     choices: 'NO_KEYS',
                     on_load: async function () {
-
+                        jj = 9*b+jj_within_block;
                         console.log('trial jj=', jj)
 
                         // for each trial, first read the stim file, shift and scale values, concat across agents etc. (only stim)
                         // stim stuff begins
                         console.log('stimTrialOrder', stimTrialOrder)
-                        const indA = stimTrialOrder[jj - 1];
+                        indA = stimTrialOrder[jj - 1];
                         console.log('indA', indA)
-                        const indB = indA;
+                        indB = indA;
                         // const NnoiseDots = NnoiseDotsAll[jj];
-                        const NnoiseDots = 1 // when developing code
+                        
+                        if (good_both)   { sex = twosexes[Math.floor(Math.random() * twosexes.length)];}
+                        if (good_male)   { sex = 'M';}
+                        if (good_female) { sex = 'F';}
+                        
+                        if (Math.random() < 0.5) {curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`]; } 
+                        else                     {curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_B_LRswapped.txt`, `${stimAll[trialSeq[jj]]}_${sex}_A_LRswapped.txt`]; }
+                        console.log('curr_stim', curr_stim)
 
-                        if (good_both) {
-                            const twosexes = ['M', 'F'];
-                            const sex = twosexes[Math.floor(Math.random() * twosexes.length)];
-
-                            // let vid_name = 'come_closer_F'; //'look_ceiling_F';
-                            if (Math.random() < 0.5) {
-                                curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
-                            }
-                            else {
-                                curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_B_LRswapped.txt`, `${stimAll[trialSeq[jj]]}_${sex}_A_LRswapped.txt`];//stimAll[jj];
-                            }
-                            console.log('curr_stim', curr_stim)
-                        }
-
-                        if (good_male) {
-                            const sex = 'M'
-                            curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
-                            console.log('curr_stim', curr_stim)
-                        }
-
-                        if (good_female) {
-                            const sex = 'F'
-                            curr_stim = [`${stimAll[trialSeq[jj]]}_${sex}_A.txt`, `${stimAll[trialSeq[jj]]}_${sex}_B.txt`];//stimAll[jj];
-                            console.log('curr_stim', curr_stim)
-                        }
-                        // const stimFileA = `stims/${vid_name}_A.txt`;
-                        // const stimFileB = `stims/${vid_name}_B.txt`;
-                        // const stimFileA = `stims/${curr_stim[0]}`;
-                        // const stimFileB = `stims/${curr_stim[1]}`;
-
-                        const stimFileA = `https://rvar-page.github.io/jspsych-uncertainty-experiment/part1/stims/${curr_stim[0]}`;
-                        const stimFileB = `https://rvar-page.github.io/jspsych-uncertainty-experiment/part1/stims/${curr_stim[1]}`;
+                        stimFileA = `https://rvar-page.github.io/jspsych-uncertainty-experiment/part1/stims/${curr_stim[0]}`;
+                        stimFileB = `https://rvar-page.github.io/jspsych-uncertainty-experiment/part1/stims/${curr_stim[1]}`;
 
                         console.log("File path for A:", stimFileA);
                         console.log("File path for B:", stimFileB);
 
-
-                        // let dataA = await fetch(`./${stimFileA}`);
-                        // let dataB = await fetch(`./${stimFileB}`);
-                        let dataA = await fetch(stimFileA);
-                        let dataB = await fetch(stimFileB);
+                        dataA = await fetch(stimFileA);
+                        dataB = await fetch(stimFileB);
 
                         textA = await dataA.text();
                         textB = await dataB.text();
 
-                        console.log('dataA:', dataA, 'dataB:', dataB)
+                        // console.log('dataA:', dataA, 'dataB:', dataB)
 
-                        const linesA = textA.trim().split('\n');// Split the data into lines and skip the first line (header)
-                        const linesB = textB.trim().split('\n');// Split the data into lines and skip the first line (header)
+                        linesA = textA.trim().split('\n');// Split the data into lines and skip the first line (header)
+                        linesB = textB.trim().split('\n');// Split the data into lines and skip the first line (header)
 
+                        
                         // Handle header if i = 0
                         // const header = i === 0 ? lines[0] : null;
-                        const headerA = linesA[0]; // Always take the first line as the header
-                        const headerB = linesB[0]; // Always take the first line as the header
+                        headerA = linesA[0]; // Always take the first line as the header
+                        headerB = linesB[0]; // Always take the first line as the header
                         console.log('headerA', headerA)
-                        const totFrames = headerA.match(/frames\s*=\s*(\d+)/)[1]; // tot frames is useful to reshape the array
-                        console.log('totFrames', totFrames)
-                        const bodyA = linesA.slice(1);
-                        const bodyB = linesB.slice(1);
-                        const columnsA = bodyA.map(line => {
-                            const parts = line.trim().split(/\s+/); // Split line by whitespace
+                        totFrames = headerA.match(/frames\s*=\s*(\d+)/)[1]; // tot frames is useful to reshape the array
+                        // console.log('totFrames', totFrames)
+                        bodyA = linesA.slice(1);
+                        bodyB = linesB.slice(1);
+                        columnsA = bodyA.map(line => {
+                            parts = line.trim().split(/\s+/); // Split line by whitespace
                             return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
                         });
-                        const columnsB = bodyB.map(line => {
-                            const parts = line.trim().split(/\s+/); // Split line by whitespace
+                        columnsB = bodyB.map(line => {
+                             parts = line.trim().split(/\s+/); // Split line by whitespace
                             return [parseFloat(parts[0]), parseFloat(parts[2])]; // Extract columns 0 and 2 as numbers
                         });
-                        // console.log('columnsA',columnsA, ',columnsA.length()', columnsA.length)//, ',test1:',test1)
-                        // console.log('columnsB',columnsB, ',columnsB.length()', columnsB.length)//, ',test1:',test1)
-
-                        // Get dimensions
-                        // console.log('columnsA dims')
-                        // getDimensions(columnsA);
-                        // console.log('columnsB dims')
-                        // getDimensions(columnsB);
-
+                        
                         // Separate columns
                         ax = columnsA.map(row => row[0]); // Extract first column
                         az = columnsA.map(row => row[1]); // Extract second column
@@ -1123,36 +1185,31 @@
                         bz = columnsB.map(row => row[1]); // Extract second column
                         // console.log('bx',bx,typeof bx[0]); // Output: "number"
 
+                        
                         /* shift and scale! */
-                        let shift = 50;
-                        let scale = 20;
+                        shift = 50;
+                        scale = 20;
                         // Find the minimum and maximum values
-                        let min = Math.min(...ax);
-                        let max = Math.max(...ax);
+                        min = Math.min(...ax);
+                        max = Math.max(...ax);
                         // Center and normalize the array
                         ax = ax.map(num => (num - min) / (max - min));
-                        // console.log('ax after norm',ax,typeof ax[0]); // Output: "number"
                         ax = ax.map(num => num * scale + shift);
-                        // console.log('ax after shift and scale',ax,typeof ax[0]); // Output: "number"
-
+                        
                         min = Math.min(...ax);
                         max = Math.max(...ax);
                         // console.log('ax: min', min,',max', max)
 
                         shift = 30//-20;
-                        // scale=20; // scale should be the same for both x's
                         // Find the minimum and maximum values
                         min = Math.min(...bx);
                         max = Math.max(...bx);
                         bx = bx.map(num => (num - min) / (max - min));
-                        // console.log('bx after norm',bx,typeof bx[0]); // Output: "number"
                         bx = bx.map(num => num * scale + shift);
-                        // console.log('bx after shift and scale',bx,typeof bx[0]); // Output: "number"
-
+                        
                         min = Math.min(...bx);
                         max = Math.max(...bx);
-                        // console.log('bx: min', min,',max', max)
-
+                        
                         shift = 20//-30; // same shift and scale for both 
                         scale = 60;
                         // vertical
@@ -1165,8 +1222,7 @@
 
                         min = Math.min(...az);
                         max = Math.max(...az);
-                        // console.log('az: min', min,',max', max)
-
+                        
                         // // Find the minimum and maximum values
                         min = Math.min(...bz);
                         max = Math.max(...bz);
@@ -1176,13 +1232,9 @@
 
                         min = Math.min(...bz);
                         max = Math.max(...bz);
-                        // console.log('bz: min', min,',max', max)
 
-                        // console.log('ax not reshaped',ax)
-                        let rows = totFrames;
-                        let cols = 13;
-                        // ax = reshape(ax, NdotsPerActor);
-                        // az = reshape(az, NdotsPerActor);
+                        rows = totFrames;
+                        cols = 13;
                         ax = Array.from({ length: rows }, (_, i) =>
                             ax.slice(i * cols, (i + 1) * cols)
                         );
@@ -1197,9 +1249,8 @@
                         bz = Array.from({ length: rows }, (_, i) =>
                             bz.slice(i * cols, (i + 1) * cols)
                         );
-
-                        let stimx = [];
-                        let stimz = [];
+                        stimx = [];
+                        stimz = [];
                         ax_bx = ax.map((row, i) => row.concat(bx[i]));  //ax.concat(bx);
                         az_bz = az.map((row, i) => row.concat(bz[i]));  //ax.concat(bx);
                         min = Math.min(...ax_bx.flat());
@@ -1210,57 +1261,53 @@
 
                         // start of noise stuff
                         NdotsToShowNoise = NnoiseDots;
-                        // setSizeNoise = Math.ceil(NdotsToShowNoise/dotDur) // as framerate is 30Hz, I will change a dot every 4 frames, so to make the changes as asynchroneous as possible, I change as few dots as possible - that's 3 per frame
+                        // as framerate is 30Hz, I will change a dot every 4 frames, so to make the changes as asynchroneous as possible, I change as few dots as possible - that's 3 per frame
                         setBoundsNoise = linspace(0, NdotsToShowNoise, dotDur + 1) // start and stop of each quarter.
                         setBoundsNoise = setBoundsNoise.map(num => Math.ceil(num));
-                        // console.log('setBoundsNoise',setBoundsNoise)
-
-                        const possCoordsNoisex = transpose(ax_bx);
-                        const possCoordsNoisez = transpose(az_bz);
+                        
+                        possCoordsNoisex = transpose(ax_bx);
+                        possCoordsNoisez = transpose(az_bz);
                         
                         // Initialize arrays (which are later combined to generate noise) with 0
-                        let offsetx = Array.from({ length: NnoiseDots }, () =>
+                        offsetx = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes).fill(0)
                         );
-                        let offsetz = Array.from({ length: NnoiseDots }, () =>
+                        offsetz = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes).fill(0)
                         );
-                        let timeWindow = Array.from({ length: NnoiseDots }, () =>
+                        timeWindow = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes).fill(0)
                         );
-                        let swapXZ = Array.from({ length: NnoiseDots }, () =>
+                        swapXZ = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes).fill(0)
                         );
-                        let flipX = Array.from({ length: NnoiseDots }, () =>
+                        flipX = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes).fill(1)
                         );
-                        let flipZ = Array.from({ length: NnoiseDots }, () =>
+                        flipZ = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes).fill(1)
                         );
                         console.log('offsetx[0][0]:', offsetx[0][0]) // sanity check. should be 0
 
                         // Initialize `sel` as a 2D array with NnoiseDots rows and (Nframes + Nsets) columns, filled with NaN
-                        let sel = Array.from({ length: NnoiseDots }, () =>
+                        sel = Array.from({ length: NnoiseDots }, () =>
                             Array(Nframes + Nsets).fill(NaN)
                         );
-                        // console.log('sel.length',sel.length,',sel:',sel)
                         // Select and transform dots
-                        let f = 0; // Frame counter
+                        f = 0; // Frame counter
 
                         while (f <= Nframes + Nsets) { // repmat not working!!!!!
-                            for (let s = 0; s < Nsets; s++) { // for each set of NnoiseDots/4 dots
+                            for (s = 0; s < Nsets; s++) { // for each set of NnoiseDots/4 dots
                                 const whichDots = Array.from(
                                     { length: setBoundsNoise[s + 1] - setBoundsNoise[s] },
                                     (_, i) => setBoundsNoise[s] + i
                                 ); // should be something like 0-12, 12-24 etc
-                                const range = Array.from({ length: Ndots }, (_, i) => i); // 1:Ndots (1:26) --> inds from which to select stimuli
-                                let sampled = sampleFrom(Math.ceil(NnoiseDots / dotDur), range);  // sample 16 dots
-                                // console.log('sampled:',sampled) // (should be 12 values between 1 and 26 from the stim dots for Noisedots=48)
+                                range = Array.from({ length: Ndots }, (_, i) => i); // 1:Ndots (1:26) --> inds from which to select stimuli
+                                sampled = sampleFrom(Math.ceil(NnoiseDots / dotDur), range);  // sample 16 dots
                                 // edit a quarter of dots
                                 samp = -1;
                                 whichDots.forEach((dot) => { // for each of the 12 dots (48 noisedots version). e.g. dot goes from 36 to 47
                                     samp++;
-
                                     // assign temporary values to each dot within the set
                                     main_dot_ind = sampled[samp] //selTemp[dot]; // sel has the dot number (wrt the main stim set) 
                                     // for each of the 48 dots and Nframes+4 frames
@@ -1271,7 +1318,7 @@
                                     flipXTemp_ = Math.random() < 0.5 ? -1 : 1;
                                     flipZTemp_ = Math.random() < 0.5 ? -1 : 1;
 
-                                    for (let ind = 0; ind < 4; ind++) { // repmat in matlab
+                                    for (ind = 0; ind < 4; ind++) { // repmat in matlab
                                         sel[dot][f + ind] = main_dot_ind
                                         offsetx[dot][f + ind] = offsetxTemp_ //offsetxTemp[dot]; // Random x-offset
                                         offsetz[dot][f + ind] = offsetzTemp_ //offsetzTemp[dot]; // Random z-offset
@@ -1290,17 +1337,16 @@
                         offsetx = offsetx.map(row => row.slice(Nsets, Nframes + Nsets));
                         offsetz = offsetz.map(row => row.slice(Nsets, Nframes + Nsets));
 
-                        let noisex = Array.from({ length: Nframes }, () =>
+                        noisex = Array.from({ length: Nframes }, () =>
                             Array(NnoiseDots).fill(0)
                         );
-                        let noisez = Array.from({ length: Nframes }, () =>
+                        noisez = Array.from({ length: Nframes }, () =>
                             Array(NnoiseDots).fill(0)
                         );
 
 
-                        for (let f = 0; f < Nframes; f++) {
-                            for (let d = 0; d < NnoiseDots; d++) {
-
+                        for (f = 0; f < Nframes; f++) {
+                            for (d = 0; d < NnoiseDots; d++) {
                                 if (swapXZ[d][f]) {
                                     // Perform coordinate swap and offset adjustment
                                     noisex[f][d] =
@@ -1360,7 +1406,7 @@
 
                         // end of noise stuff
 
-                        for (let f = 0; f < Nframes; f++) {
+                        for (f = 0; f < Nframes; f++) {
                             stimx.push(
                                 selStim[f].map(index => {
                                     if (ax_bx[f][index - 1] === undefined) {
@@ -1379,7 +1425,6 @@
                                 })
                             );
                         }
-
                         min = Math.min(...stimx.flat());
                         max = Math.max(...stimx.flat());
                         console.log('stimx: min', min, ',max', max)
@@ -1403,17 +1448,42 @@
                         } else {
                             console.error("Dot container not found!");
                         }
-
+                        if (blockSeq[b] == 1) {
+                            resp_choices = resp_choices_alltrials_response1[trialSeq[9*b+jj_within_block]]; //resp_choices_alltrials_response1;
+                        }
+                        if (blockSeq[b] == 2){
+                            resp_choices = resp_choices_alltrials_response2[trialSeq[9*b+jj_within_block]];
+                        }
+                        console.log(resp_choices);
                     },
                     trial_duration: 3200 // End trial after 1 second (10 sets * .1 seconds)
                 };
                 timeline.push(dotTrial);
 
+                function return_prompt(b){
+                    if (blockSeq[b] == 1) {
+                        prompt = 'Person 1 (initiator) said:'
+                    }
+                    if (blockSeq[b] == 2){
+                        prompt = 'Person 2 (responder):'
+                    }
+                    return prompt;
+                }
+
+                function return_resp_choices(b,jj_within_block){
+                    if (blockSeq[b] == 1) {
+                        resp_choices = resp_choices_alltrials_response1[trialSeq[9*b+jj_within_block]]; //resp_choices_alltrials_response1;
+                    }
+                    if (blockSeq[b] == 2){
+                        resp_choices = resp_choices_alltrials_response2[trialSeq[9*b+jj_within_block]];
+                    }
+                    return resp_choices;
+                }
+
                 respPage = {
                     type: jsPsychHtmlSliderResponse,
-                    stimulus: '<p style="text-align: center;">Person 1 (initiator) said: </p>',
-                    // labels: resp_choices_alltrials[trialSeq[jj]],
-                   labels: resp_choices_block[trialSeq[jj]],
+                    stimulus: '<p style="text-align: center;">'+return_prompt(b)+' </p>',
+                    labels: return_resp_choices(b,jj_within_block),
                     prompt: " ",
 
                     // slider_start: 50,
@@ -1421,8 +1491,17 @@
                     require_movement: true,
                     // response_ends_trial:true,
                     on_load: function () {
-                        jsPsych.data.get().addToLast({ nt: jj + 1, stim: stimAll[trialSeq[jj]], resp: resp_choices_alltrials[trialSeq[jj]] });
-                        const sliderContainer = document.querySelector('.jspsych-content');
+                        jsPsych.data.get().addToLast({ nt: jj + 1, stim: stimAll[trialSeq[jj]], resp: return_resp_choices(b,jj_within_block) });
+                        // jsPsych.data.get().addToLast({ nt: jj + 1, stim: stimAll[trialSeq[jj]], resp: resp_choices_block[trialSeq[jj]] });
+
+                        // Hide the continue button
+                        const button = document.querySelector('.jspsych-btn');
+                        // const button = document.querySelector('.jspsych-html-slider-response .jspsych-btn');
+                        if (button) {
+                            button.style.display = 'none';
+                        }
+
+                        sliderContainer = document.querySelector('.jspsych-content');
                         sliderContainer.style.display = 'flex';
                         sliderContainer.style.justifyContent = 'center';
                         sliderContainer.style.alignItems = 'center';
@@ -1431,65 +1510,51 @@
                         sliderContainer.style.maxHeight = '100vh'; // Prevent exceeding viewport height
 
                         // Adjust label font size and alignment
-                        const labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
+                        labels = document.querySelectorAll('.jspsych-html-slider-response-container span');
                         labels.forEach((label) => {
                             label.style.fontSize = '24px'; // Increase font size
                             label.style.marginTop = '10px'; // Add space below slider for labels
                         });
 
                         // Increase slider size
-                        const slider = document.querySelector('input[type="range"]');
+                        slider = document.querySelector('input[type="range"]');
                         slider.style.height = '15px'; // Adjust slider height
                         slider.style.width = '100%'; // Ensure it spans the container width
                         slider.style.margin = '20px 0'; // Add spacing above and below the slider
 
                         // Add padding to avoid altering global layout
-                        sliderContainer.style.padding = '20px';
+                        sliderContainer.style.padding = '20px 0';
 
+                        // Add event listener to end the trial when slider value changes
+                        slider.addEventListener('change', () => {
+                            const response = slider.value;
+                            jsPsych.finishTrial({ slider_response: response });
+                        });
                     },
                 };
                 timeline.push(respPage)
-
-                // if ((jj % 7 == 0) && (jj != 0)) {
-
-                //     breakPage = {
-                //         type: jsPsychSurveyHtmlForm,
-                //         html: '<p style="text-align: center; width: 400px">Short break.<br><br>Continue when you are ready.<br>Trials finished =' + jj + '</p>',
-                //         on_load: function () {
-                //             const buttons = document.querySelectorAll('.jspsych-btn');
-                //             buttons.forEach(button => {
-                //                 button.style.display = 'block';
-                //                 button.style.margin = '0 auto';
-                //             });
-                //         }
-                //     };
-
-                //     timeline.push(breakPage)
-                //     // break;
-                // }
+                // break;
             }
+            
         }
 
         // feedback
         timeline.push({
             type: jsPsychSurveyHtmlForm,
             preamble: '<p>Feedback if any:</p>',
-            // html: '<p align="center"> <input id="prolific_ID_ID_start" class="textbox" type="text" size="50%" height="40px" align="center" name="prolific_ID_name_start" required /> <br></p>',
             html: `
                 <p align="center"> 
-                     <textarea id="feedback" 
+                    <textarea id="feedback" 
                         class="textbox" 
-                        style="width: 100%; height: 120px; font-size: 24px; padding: 5px; line-height: 1.5; text-align: left; vertical-align: top;" 
+                        style="width: 100%; height: 120px; font-size: 24px; padding: 5px; line-height: 1.5; text-align: left; vertical-align: top; font-family: Arial, Helvetica, sans-serif;" 
                         name="feedback" 
                         rows="5" 
                         required
-                        autofocus>
-                    </textarea>
+                    ></textarea>
                     <br>
-                </p>
-            `,
+                </p>`,
             on_load: function () {
-                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
                     button.style.display = 'block';
                     button.style.margin = '0 auto';
@@ -1504,7 +1569,7 @@
             html: '<p style="text-align: center; width: 400px">Great job!<br></p>',
 
             on_load: function () {
-                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
                     button.style.display = 'block';
                     button.style.margin = '0 auto';
@@ -1512,12 +1577,8 @@
                 const data = jsPsych.data.get().csv();
                 // Save the data as a CSV file
                 const prolificID = jsPsych.data.get().first(1).values()[0].prolific_id || 'Not available';
-                const flname = `experiment_data_prelim_person1v_${prolificID}.csv`
+                const flname = `experiment_data_prelim_${prolificID}.csv`
                 saveData(flname, data);
-
-                // Send data to the upload link
-                // const experimentData = jsPsych.data.get().json();
-                // uploadDataToSciebo(experimentData);
             }
         }
         timeline.push(endPage)
