@@ -516,7 +516,7 @@
 
         introPage = {
             type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips that depict two interacting people as viewed from the side. In each clip, person 2 will react to person 1’s action. <br><br>After each clip, you will be asked a question about either: <br>(1) the action of person 1 (the initiator) or <br>(2) the reaction of person 2 (the responder).<br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation clip.<br><br>',
+            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips that depict two interacting people as viewed from the side. In each clip, person 2 will react to person 1’s action. <br><br>After each clip, you will be asked a question about either: <br>(1) the action of person 1 (the initiator)<br>or<br>(2) the reaction of person 2 (the responder).<br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation clip.<br><br>',
             on_load: function () {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -854,11 +854,24 @@
         };
         timeline.push(dotTrialDemo);
 
+        after_demo_stim = {
+                type: jsPsychSurveyHtmlForm,
+                html: '<p style="text-align: center; width: 600px"><br>If you did not see a short animation clip that depicted two interacting people in the previous page, please quit this study right now. YOU MAY NOT BE ABLE TO SUBMIT THIS STUDY!!<br><br>',
+                on_load: function() {
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        }
+        timeline.push(after_demo_stim)
+
         const respPageIntro = {
             type: jsPsychHtmlButtonResponse,
             stimulus: `
-            <div style="width: 600px; margin: auto; text-align: center; font-family: sans-serif; font-size: 24px;">
-                <p style="text-align: center; margin: 20px auto; max-width: 600px; line-height: 1.5;">
+            <div style="width: 800px; margin: auto; text-align: center; font-family: sans-serif; font-size: 24px;">
+                <p style="text-align: center; margin: 20px auto; max-width: 800px; line-height: 1.5;">
                     These will be the 2 types of questions:
                 </p>
 
@@ -890,10 +903,10 @@
                             <span style="position: absolute; right: 0; transform: translateX(50%);">had<br>reaction 2</span>
                         </div>
                     </div>
-                    <p style="text-align: center; margin: 20px auto; max-width: 600px; line-height: 1.5;">
-                        <br><br>You should click on (or click-and-drag) the slider ONCE to indicate which action/reaction you just saw and how confident you feel about it.<br>Click closer to an action/reaction label if you feel confident about it, and further from the edges depending on your confidence.
-                    </p>
                 </div>
+                    <p style="text-align: center; margin: 20px auto; max-width: 800px; line-height: 1.5;">
+                        <br><br>To answer, you can click on the slider (horizontal bar) at any location, or click on the cursor and drag it to the location you want.<br>To select the location: click closer to an action/reaction label if you feel confident about choosing it, click further from the label if you are unsure.<br>Please be aware that once you release the click, your answer is logged and the experiment moves on to the next trial.
+                    </p>
             </div>`,
             choices: ['Continue'],
             on_load: function() {
@@ -917,10 +930,11 @@
             },
             };
         timeline.push(respPageIntro);
+        // You should click on (or click-and-drag) the slider ONCE to indicate which action/reaction you just saw and how confident you feel about it.<br>Click closer to an action/reaction label if you feel confident about it, and further from the edges depending on your confidence.
 
         timeline.push({
             type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 400px"><br>Let us watch the animation clip again on the next page. Pay attention.<br><br>',
+            html: '<p style="text-align: center; width: 400px"><br>Let us watch the animation clip again and answer the two questions.<br>Pay attention.<br><br>',
             on_load: function () {
                 buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -929,6 +943,7 @@
                 });
             }
         });
+
         timeline.push(dotTrialDemo);
 
         if (Math.random() > 0.5) {
@@ -939,9 +954,10 @@
         let slider,sliderContainer;
         respPageDemo1 = {
             type: jsPsychHtmlSliderResponse,
-            stimulus: '<p style="text-align: center; width: 600px">Click on the slider to indicate both what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure.<br><br>Person 1 (initiator) said: </p>',
+            stimulus: '<p style="text-align: center; width: 600px">Person 1 (initiator) said: </p>',
             labels: resp_page_choices_action,
-            prompt: '',
+            prompt:'Click closer to an action/reaction label if you feel confident about choosing it and further from the label if you are unsure. Once you release the click, your answer is logged and the experiment moves on to the next trial.',
+            // prompt: 'Click on the slider to indicate both what you saw and your confidence. Click closer to an action if you are confident about it, or further from the ends if you are unsure.<br><br>',
             slider_width: 400, // Width of the slider in pixels
             require_movement: true,
             on_load: function () {
@@ -1001,9 +1017,9 @@
 
         respPageDemo2 = {
             type: jsPsychHtmlSliderResponse,
-            stimulus: '<p style="text-align: center; width: 600px">Click on the slider to indicate both what you saw and your confidence. Place it closer to an action if you are confident about it, or further from the edges if you are unsure.<br><br>Person 2 (responder): </p>',
+            stimulus: '<p style="text-align: center; width: 600px">Person 2 (responder): </p>',
             labels: resp_page_choices_reaction,
-            prompt: '',
+            prompt:'Click closer to an action/reaction label if you feel confident about choosing it and further from the label if you are unsure. Once you release the click, your answer is logged and the experiment moves on to the next trial.',
             slider_width: 400, // Width of the slider in pixels
             require_movement: true,
             on_load: function () {
