@@ -155,7 +155,7 @@
                 'asks the other<br>person to<br>calm down',
                 'expresses joy for<br>other person',
                 'turns to look<br>at the ceiling',
-                'bends to look<br>at the floor',
+                'bends to look<br>at something<br>on the floor',
                 'picks up<br>something',
                 'stands up']
         }
@@ -516,7 +516,7 @@
 
         introPage = {
             type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips that depict two interacting people as viewed from the side. In each clip, person 1 will initiate a social interaction and person 2 will react to it. <br><br>After each animation, you will be asked a question about either: <br>(1) the action of person 1 (the initiator) or <br>(2) the reaction of person 2 (the responder).<br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation.<br><br>',
+            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips that depict two interacting people as viewed from the side. In each clip, person 2 will react to person 1’s action. <br><br>After each clip, you will be asked a question about either: <br>(1) the action of person 1 (the initiator) or <br>(2) the reaction of person 2 (the responder).<br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation clip.<br><br>',
             on_load: function () {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -891,7 +891,7 @@
                         </div>
                     </div>
                     <p style="text-align: center; margin: 20px auto; max-width: 600px; line-height: 1.5;">
-                        <br><br>You should click  on the slider once to indicate which behaviour you just saw and how confident you feel about it. Click closer to an action/reaction if you feel confident about it, and further from the edges depending on your confidence.
+                        <br><br>You should click on (or click-and-drag) the slider ONCE to indicate which action/reaction you just saw and how confident you feel about it.<br>Click closer to an action/reaction label if you feel confident about it, and further from the edges depending on your confidence.
                     </p>
                 </div>
             </div>`,
@@ -920,7 +920,7 @@
 
         timeline.push({
             type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 400px"><br>Let us watch the animation again on the next page. Pay attention.<br><br>',
+            html: '<p style="text-align: center; width: 400px"><br>Let us watch the animation clip again on the next page. Pay attention.<br><br>',
             on_load: function () {
                 buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
