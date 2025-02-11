@@ -138,42 +138,72 @@
         const good_male = false;
         const good_both = false;
 
+        // look_floor is removed because it was redundant/ confusing with get_down
         if (good_female) {
             console.log('here')
 
+            // var stimList = ['come_closer', 'get_down', 'go_overthere',
+            //     'I_am_angry', 'I_am_happy', 'look_ceiling', 'look_floor',
+            //     'pick_up', 'stand_up']
             var stimList = ['come_closer', 'get_down', 'go_overthere',
-                'I_am_angry', 'I_am_happy', 'look_ceiling', 'look_floor',
+                'I_am_angry', 'I_am_happy', 'look_ceiling',
                 'pick_up', 'stand_up']
 
+            // resp_choices_p1 = ['come closer', 'get down', 'go over there',
+            //     'I am angry', 'I am happy', 'look at<br>the ceiling', 'look at<br>the floor',
+            //     'pick it up', 'stand up']
             resp_choices_p1 = ['come closer', 'get down', 'go over there',
-                'I am angry', 'I am happy', 'look at<br>the ceiling', 'look at<br>the floor',
+                'I am angry', 'I am happy', 'look at<br>the ceiling',
                 'pick it up', 'stand up']
 
+            // resp_choices_p2 = ['comes closer',
+            //     'squats down',
+            //     'goes in the<br>indicated direction',
+            //     'asks the other<br>person to<br>calm down',
+            //     'expresses joy for<br>other person',
+            //     'turns to look<br>at the ceiling',
+            //     'bends to look<br>at something<br>on the floor',
+            //     'picks up<br>something',
+            //     'stands up']
             resp_choices_p2 = ['comes closer',
                 'squats down',
                 'goes in the<br>indicated direction',
                 'asks the other<br>person to<br>calm down',
                 'expresses joy for<br>other person',
                 'turns to look<br>at the ceiling',
-                'bends to look<br>at something<br>on the floor',
                 'picks up<br>something',
                 'stands up']
         }
 
         if (good_male) {
+            // var stimList = ['come_closer', 'go_overthere', 'I_am_happy',
+            //     'look_ceiling', 'look_floor', 'move_over', 'no', 'pick_up',
+            //     'sit_down', 'which_one']
             var stimList = ['come_closer', 'go_overthere', 'I_am_happy',
-                'look_ceiling', 'look_floor', 'move_over', 'no', 'pick_up',
+                'look_ceiling','move_over', 'no', 'pick_up',
                 'sit_down', 'which_one']
 
+            // resp_choices_p1 = ['come closer', 'go over there', 'I am happy',
+            //     'look at<br>the ceiling', 'look at<br>the floor', 'move over', 'no!', 'pick it up',
+            //     'sit down', 'stand up']
             resp_choices_p1 = ['come closer', 'go over there', 'I am happy',
-                'look at<br>the ceiling', 'look at<br>the floor', 'move over', 'no!', 'pick it up',
+                'look at<br>the ceiling', 'move over', 'no!', 'pick it up',
                 'sit down', 'stand up']
 
+            // resp_choices_p2 = ['comes closer',
+            //     'goes in the<br>indicated direction',
+            //     'expresses joy for<br>other person',
+            //     'turns to look<br>at the ceiling',
+            //     'bends to look<br>at the floor',
+            //     'moves over',
+            //     'retreats',
+            //     'picks up<br>something',
+            //     'sits down',
+            //     'takes an<br>object']
             resp_choices_p2 = ['comes closer',
                 'goes in the<br>indicated direction',
                 'expresses joy for<br>other person',
                 'turns to look<br>at the ceiling',
-                'bends to look<br>at the floor',
                 'moves over',
                 'retreats',
                 'picks up<br>something',
@@ -182,16 +212,24 @@
         }
 
         if (good_both) {
+            // var stimList = ['come_closer', 'go_overthere',
+            //     'look_ceiling', 'look_floor', 'pick_up']
             var stimList = ['come_closer', 'go_overthere',
-                'look_ceiling', 'look_floor', 'pick_up']
+                'look_ceiling', 'pick_up']
 
+            // resp_choices_p1 = ['come closer', 'go over there',
+            //     'look at<br>the ceiling', 'look at<br>the floor', 'pick it up']
             resp_choices_p1 = ['come closer', 'go over there',
-                'look at<br>the ceiling', 'look at<br>the floor', 'pick it up']
+                'look at<br>the ceiling', 'pick it up']
 
+            // resp_choices_p2 = ['comes closer',
+            //     'goes in the<br>indicated direction',
+            //     'turns to look<br>at the ceiling',
+            //     'bends to look<br>at the floor',
+            //     'picks object<br>up']
             resp_choices_p2 = ['comes closer',
                 'goes in the<br>indicated direction',
                 'turns to look<br>at the ceiling',
-                'bends to look<br>at the floor',
                 'picks object<br>up']
         }
 
@@ -256,6 +294,7 @@
         const trialSeq = shuffleArray(series); // to make sure stimulus and response sequences are from the same rows
         const Nstims = stimList.length;
         const Ntrials = stimList.length;//8;//8;
+        console.log('Ntrials',Ntrials)
 
         const thresh = 100;
         const diff = 15;
@@ -266,7 +305,6 @@
             NoiseLevels.flatMap(level => Array(NtrialsPerNoiselevel).fill(level))
         ); // shuffled array with 64 trials specifying how much noise each trial should have
 
-        const NtrialsPerStim = Math.round(Ntrials / stimList.length); // 64/8 = 16
         const stimAll = stimList;
         console.log('stimAll', stimAll)
 
@@ -379,7 +417,6 @@
             container.id = "dot-container";
             container.style.position = "relative";
             container.style.overflow = "visible"; // Ensure dots stay inside container
-
             
             // Create a reusable dot array
             const dots = [];
@@ -516,7 +553,7 @@
 
         introPage = {
             type: jsPsychSurveyHtmlForm,
-            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips that depict two interacting people as viewed from the side. In each clip, person 2 will react to person 1’s action. <br><br>After each clip, you will be asked a question about either: <br>(1) the action of person 1 (the initiator)<br>or<br>(2) the reaction of person 2 (the responder).<br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation clip.<br><br>',
+            html: '<p style="text-align: center; width: 600px"><br>In this study, you will watch short animation clips made up of dots that depict two interacting people (head to toe) as viewed from the side. In each clip, person 2 will react to person 1’s action. <br><br>After each clip, you will be asked a question about either: <br>(1) the action of person 1 (the initiator)<br>or<br>(2) the reaction of person 2 (the responder). Note that person 1 and 2 can be on the left or right, and this can change from one clip to the next. <br><br>There are no right or wrong answers here!<br><br>Next, you will see a sample animation clip.<br><br>',
             on_load: function () {
                 const buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -872,7 +909,7 @@
             stimulus: `
             <div style="width: 800px; margin: auto; text-align: center; font-family: sans-serif; font-size: 24px;">
                 <p style="text-align: center; margin: 20px auto; max-width: 800px; line-height: 1.5;">
-                    These will be the 2 types of questions:
+                    These will be the 2 types of questions you see after each animation clip:
                 </p>
 
                 <!-- Slider 1 -->
@@ -905,7 +942,7 @@
                     </div>
                 </div>
                     <p style="text-align: center; margin: 20px auto; max-width: 800px; line-height: 1.5;">
-                        <br><br>To answer, you can click on the slider (horizontal bar) at any location, or click on the cursor and drag it to the location you want.<br>To select the location: click closer to an action/reaction label if you feel confident about choosing it, click further from the label if you are unsure.<br>Please be aware that once you release the click, your answer is logged and the experiment moves on to the next trial.
+                        <br><br>To answer, you can click on the slider (horizontal bar) at any location, or click on the cursor and drag it to the location you want.<br>To select the location: click closer to an action/reaction label if you feel confident about choosing it, click further from the label if you are unsure. If you feel really unsure, guess and click on one side of the bar but close to the center!<br>Please be aware that once you release the click, your answer is logged and the experiment moves on to the next trial.
                     </p>
             </div>`,
             choices: ['Continue'],
@@ -935,6 +972,18 @@
         timeline.push({
             type: jsPsychSurveyHtmlForm,
             html: '<p style="text-align: center; width: 400px"><br>Let us watch the animation clip again and answer the two questions.<br>Pay attention.<br><br>',
+            on_load: function () {
+                buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        });
+
+        timeline.push({
+            type: jsPsychSurveyHtmlForm,
+            html: '<p style="text-align: center; width: 400px">Demo with question type 1: <br><br>',
             on_load: function () {
                 buttons = document.querySelectorAll('.jspsych-btn');
                 buttons.forEach(button => {
@@ -1001,9 +1050,18 @@
                 sliderContainer.style.padding = '10px';
 
                 // Add event listener to end the trial when slider value changes
+                // slider.addEventListener('change', () => {
+                // const response = slider.value;
+                //     jsPsych.finishTrial({ slider_response: response });
+                // });
+
                 slider.addEventListener('change', () => {
-                const response = slider.value;
-                    jsPsych.finishTrial({ slider_response: response });
+                    slider.disabled = true; // Disable the slider to prevent further movement
+
+                    setTimeout(() => {
+                        const response = slider.value; // Capture the final response
+                        jsPsych.finishTrial({ slider_response: response });
+                    }, 100); // 100ms delay
                 });
             },
         };
@@ -1014,6 +1072,20 @@
         }else{
             resp_page_choices_reaction = ['sits down', 'indicates<br>that someone<br>is taller'];
         }
+
+        timeline.push({
+            type: jsPsychSurveyHtmlForm,
+            html: '<p style="text-align: center; width: 400px">Demo with question type 2: <br><br>',
+            on_load: function () {
+                buttons = document.querySelectorAll('.jspsych-btn');
+                buttons.forEach(button => {
+                    button.style.display = 'block';
+                    button.style.margin = '0 auto';
+                });
+            }
+        });
+
+        timeline.push(dotTrialDemo);
 
         respPageDemo2 = {
             type: jsPsychHtmlSliderResponse,
@@ -1063,10 +1135,20 @@
                 sliderContainer.style.padding = '10px';
 
                 // Add event listener to end the trial when slider value changes
+                // slider.addEventListener('change', () => {
+                //     const response = slider.value;
+                //     jsPsych.finishTrial({ slider_response: response });
+                // });
+                // Add event listener to end the trial when slider value changes
                 slider.addEventListener('change', () => {
-                const response = slider.value;
-                    jsPsych.finishTrial({ slider_response: response });
+                    slider.disabled = true; // Disable the slider to prevent further movement
+
+                    setTimeout(() => {
+                        const response = slider.value; // Capture the final response
+                        jsPsych.finishTrial({ slider_response: response });
+                    }, 100); // 100ms delay
                 });
+
             },
         };
         timeline.push(respPageDemo2)
@@ -1086,9 +1168,8 @@
         timeline.push(main_study_intro)
 
         let curr_stim, runIntroPage,b,jj_within_block;
-        
 
-        console.log(' blockSeq.length', blockSeq.length)
+        console.log('blockSeq.length', blockSeq.length)
 
         const Ntrialsperblock = Ntrials/blockSeq.length;
         console.log('Ntrialsperblock:',Ntrialsperblock)
@@ -1100,7 +1181,7 @@
             if (blockSeq[b] == 1) {
                 timeline.push({
                         type: jsPsychSurveyHtmlForm,
-                        html: '<p style="text-align: center; width: 600px"><br>Block'+(b+1)+"/8.<br>Identify <b>person 1's</b> action.<br><br>",
+                        html: '<p style="text-align: center; width: 600px"><br>Block '+(b+1)+"/8.<br>Identify <b>person 1's</b> action.<br><br>",
                         on_load: function () {
                             buttons = document.querySelectorAll('.jspsych-btn');
                             buttons.forEach(button => {
@@ -1542,13 +1623,21 @@
                         sliderContainer.style.padding = '20px 0';
 
                         // Add event listener to end the trial when slider value changes
+                        // slider.addEventListener('change', () => {
+                        //     const response = slider.value;
+                        //     jsPsych.finishTrial({ slider_response: response });
+                        // });
                         slider.addEventListener('change', () => {
-                            const response = slider.value;
-                            jsPsych.finishTrial({ slider_response: response });
+                        slider.disabled = true; // Disable the slider to prevent further movement
+
+                        setTimeout(() => {
+                                const response = slider.value; // Capture the final response
+                                jsPsych.finishTrial({ slider_response: response });
+                        }, 100); // 100ms delay
                         });
                     },
                 };
-                timeline.push(respPage)
+            timeline.push(respPage)
                 // break;
             }
             
